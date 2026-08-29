@@ -1,5 +1,5 @@
 /* ============================================================
-   LIQUID GLASS & MINIMAL DARK THEME (V6 CLEAN ARCHITECTURE)
+   LIQUID GLASS & MINIMAL DARK THEME (V7 PRO - CAR HUB & RICH NOTES)
    ============================================================ */
 
 :root {
@@ -402,78 +402,150 @@ input::placeholder, textarea::placeholder {
   padding: 6px 10px;
 }
 
-/* Income Widget & Screen */
-.income-widget {
-  padding: 16px;
+/* ================= iOS NOTES RICH EDITOR ================= */
+.note-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  margin-bottom: 8px;
 }
-.today-earned-sum {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--accent-green);
-  text-shadow: 0 0 10px var(--accent-green-glow);
+.toolbar-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
 }
-.income-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 10px;
-  margin-bottom: 10px;
+.toolbar-btn:active, .toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
-.input-with-currency {
-  background: rgba(0, 0, 0, 0.25);
+.rich-editor-box {
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--bg-card-border);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  padding: 10px 12px;
+  min-height: 80px;
+  color: var(--text-main);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  word-break: break-word;
+}
+.rich-editor-box:empty:before {
+  content: attr(placeholder);
+  color: var(--text-dim);
+  pointer-events: none;
+}
+.rich-editor-box ul, .rich-editor-box ol {
+  padding-left: 20px;
+  margin: 4px 0;
+}
+.rich-editor-box hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+.rich-editor-box mark {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+/* ================= 🚗 CAR HUB STYLES ================= */
+.car-status-card {
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+.car-status-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
-.currency-label {
-  color: var(--text-muted);
-  font-weight: 600;
-  margin-left: 4px;
+.car-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.glass-select {
+.oil-status-box {
+  margin-top: 12px;
   background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--bg-card-border);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  color: var(--text-main);
-  appearance: none;
-  -webkit-appearance: none;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.income-secondary-row {
-  display: grid;
-  grid-template-columns: 130px 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.glass-date-input-full {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--bg-card-border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  color: #fff;
+.oil-label {
   font-size: 13px;
-  outline: none;
+  color: var(--text-muted);
 }
-.sub-input {
+.oil-km {
+  font-size: 16px;
+  font-weight: 700;
+}
+.car-entry-form-card {
+  padding: 14px;
+}
+.car-form-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-muted);
+}
+.car-form-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.car-form-grid input, .car-entry-form-card textarea {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid var(--bg-card-border);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
 }
-.btn-green-glow {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-  color: #fff;
-  font-weight: 600;
-  padding: 10px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  box-shadow: 0 4px 14px var(--accent-green-glow);
-  width: 100%;
+.car-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.btn-green-glow:active {
-  transform: scale(0.98);
+.car-log-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+.car-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.car-log-mileage-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.car-log-works {
+  font-size: 13.5px;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  line-height: 1.45;
 }
 
 /* ================= KNOWLEDGE BASE CARDS (БАЗА) ================= */
@@ -568,7 +640,81 @@ input::placeholder, textarea::placeholder {
   color: #fff;
 }
 
-/* ================= TAB 3: ТЕМКИ (SCHEMES) ================= */
+/* Income Screen */
+.income-widget {
+  padding: 16px;
+}
+.today-earned-sum {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent-green);
+  text-shadow: 0 0 10px var(--accent-green-glow);
+}
+.income-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.input-with-currency {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+}
+.currency-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-left: 4px;
+}
+.glass-select {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text-main);
+  appearance: none;
+  -webkit-appearance: none;
+}
+.income-secondary-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.glass-date-input-full {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+}
+.sub-input {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+.btn-green-glow {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-green-glow);
+  width: 100%;
+}
+.btn-green-glow:active {
+  transform: scale(0.98);
+}
+
+/* Schemes / Hustle Screen */
 .scheme-count-badge {
   font-size: 13px;
   font-weight: 700;
@@ -613,7 +759,6 @@ input::placeholder, textarea::placeholder {
 .btn-amber-glow:active {
   transform: scale(0.98);
 }
-
 .schemes-grid {
   display: flex;
   flex-direction: column;
@@ -687,7 +832,7 @@ input::placeholder, textarea::placeholder {
   font-size: 12.5px;
 }
 
-/* ================= TAB 4: WISHLIST TAB ================= */
+/* Wishlist Screen */
 .wish-total-counter {
   font-size: 14px;
   font-weight: 700;
@@ -806,7 +951,7 @@ input::placeholder, textarea::placeholder {
   border-radius: 6px;
 }
 
-/* ================= TAB 5: ANALYTICS & DELTA ================= */
+/* Delta & Analytics Screen */
 .delta-hero-card {
   margin-bottom: 18px;
 }
@@ -838,7 +983,6 @@ input::placeholder, textarea::placeholder {
   font-size: 12.5px;
   color: var(--text-muted);
 }
-
 .fixed-expense-total-row {
   display: flex;
   justify-content: space-between;
@@ -847,7 +991,6 @@ input::placeholder, textarea::placeholder {
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-
 .subnav-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -871,7 +1014,6 @@ input::placeholder, textarea::placeholder {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
-
 .month-bar {
   padding: 10px 14px;
   margin-bottom: 14px;
@@ -939,6 +1081,39 @@ input::placeholder, textarea::placeholder {
   justify-content: space-between;
   align-items: center;
 }
+.notes-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.note-item {
+  background: rgba(22, 27, 34, 0.45);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  position: relative;
+}
+.note-time {
+  font-size: 11px;
+  color: var(--accent-purple);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.note-body {
+  font-size: 13.5px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.note-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
 
 /* Archive List */
 .archive-list {
@@ -967,7 +1142,7 @@ input::placeholder, textarea::placeholder {
   border-color: rgba(168, 85, 247, 0.2);
 }
 
-/* ================= TABBAR (5 TABS) ================= */
+/* ================= TABBAR ================= */
 .bottom-tabbar {
   position: fixed;
   bottom: 0;
@@ -982,7 +1157,7 @@ input::placeholder, textarea::placeholder {
   align-items: center;
   border-radius: 24px 24px 0 0;
   border-bottom: none;
-  background: rgba(13, 17, 23, 0.90);
+  background: rgba(13, 17, 23, 0.92);
   z-index: 100;
 }
 .tab-btn {
@@ -1007,7 +1182,6 @@ input::placeholder, textarea::placeholder {
   filter: drop-shadow(0 0 6px var(--accent-orange-glow));
 }
 
-/* Tab View Switcher */
 .tab-content {
   display: none;
 }

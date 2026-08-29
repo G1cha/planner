@@ -1,52 +1,33 @@
 // ============================================================
-// APP LOGIC & LOCAL PERSISTENCE (V6.1 FIX)
+// APP LOGIC & LOCAL PERSISTENCE (V7 PRO - CAR & RICH NOTES)
 // ============================================================
 
 const STORAGE_KEYS = {
-  TASKS: 'pwa_tasks_v6',
-  TWELVE_GOAL: 'pwa_twelve_goal_v6',
-  TWELVE_TASKS: 'pwa_twelve_tasks_v6',
-  ARCHIVE: 'pwa_archive_v6',
-  INCOMES: 'pwa_incomes_v6',
-  MONTHLY_EXPENSE_TOTAL: 'pwa_monthly_expense_total_v6',
-  FIXED_EXPENSES: 'pwa_fixed_expenses_v6',
-  NOTES: 'pwa_notes_v6',
-  SMART_NOTES: 'pwa_smart_notes_v6',
-  SCHEMES: 'pwa_schemes_v6',
-  WISHLIST: 'pwa_wishlist_v6',
+  TASKS: 'pwa_tasks_v7',
+  TWELVE_GOAL: 'pwa_twelve_goal_v7',
+  TWELVE_TASKS: 'pwa_twelve_tasks_v7',
+  ARCHIVE: 'pwa_archive_v7',
+  INCOMES: 'pwa_incomes_v7',
+  MONTHLY_EXPENSE_TOTAL: 'pwa_monthly_expense_total_v7',
+  FIXED_EXPENSES: 'pwa_fixed_expenses_v7',
+  NOTES: 'pwa_notes_v7',
+  SMART_NOTES: 'pwa_smart_notes_v7',
+  CAR_OIL: 'pwa_car_oil_v7',
+  CAR_LOGS: 'pwa_car_logs_v7',
+  SCHEMES: 'pwa_schemes_v7',
+  WISHLIST: 'pwa_wishlist_v7',
   LAST_DATE: 'pwa_last_login_date'
 };
 
+// Initial Smart Notes (БАЗА ЗНАНИЙ - БЕЗ ТАЧКИ, ТАК КАК ОНА ТЕПЕРЬ В СВОЕМ РАЗДЕЛЕ!)
 const DEFAULT_SMART_NOTES = [
-  {
-    id: 'note_kia',
-    icon: '🚗',
-    title: 'KIA RIO — Авто & ТО',
-    badge: 'Масло: 212.000 км',
-    badgeClass: 'badge-blue',
-    content: `**Следующая замена масла:** 212.000 км
----
-**История обслуживания:**
-• **205к:**
-  - замена масла и фильтров
-  - замена задней правой ступицы
-  - замена задних тормозов
-• **206к:**
-  - ремонт моторчика дворников (проводка)
-  - замена всех задних лампочек
-  - полировка передних фар
-• **209к:**
-  - ремонт фишки моторчика дворников`
-  },
   {
     id: 'note_gostraight',
     icon: '⭐️',
     title: 'GÖ STRAIGHT — Дедлайны',
     badge: 'Сентябрь',
     badgeClass: 'badge-orange',
-    content: `• **14 сентября:** забрать вклад ФинУслуги (100к), перекинуть в ликвидность (LQDT)
-• **15 сентября:** подать на увольнение
-• **16 сентября:** купить зимнюю резину`
+    content: `• <b>14 сентября:</b> забрать вклад ФинУслуги (100к), перекинуть в ликвидность (LQDT)<br>• <b>15 сентября:</b> подать на увольнение<br>• <b>16 сентября:</b> купить зимнюю резину`
   },
   {
     id: 'note_health',
@@ -54,21 +35,7 @@ const DEFAULT_SMART_NOTES = [
     title: '2DAŸZ — Здоровье & Тело',
     badge: 'Режим',
     badgeClass: 'badge-green',
-    content: `**Больная спина и осанка:**
-• ДЕРЖАТЬ ОСАНКУ
-• Турник по 1 минуте (после умывания, перед/после смены, перед сном)
-• Отжимания: раз в день на максимум
-
-**Привычки & Питание:**
-• С 1-го сентября: новый курс витаминов
-• Не обжираться на работе
-• Полностью исключить энергетики
-• Когда закончится жижа — на сигареты, кьюб выкинуть
-• С 1-го октября: полностью бросить курить
-
-**На выходных после работы:**
-• Выписать в заметках все хотелки (от глобальных до мелочей)
-• Выписать все источники дохода и статьи расходов`
+    content: `<b>Больная спина и осанка:</b><br>• ДЕРЖАТЬ ОСАНКУ<br>• Турник по 1 минуте (после умывания, перед/после смены, перед сном)<br>• Отжимания: раз в день на максимум<br><br><b>Привычки & Питание:</b><br>• С 1-го сентября: новый курс витаминов<br>• Не обжираться на работе<br>• Полностью исключить энергетики<br>• Когда закончится жижа — на сигареты, кьюб выкинуть<br>• С 1-го октября: полностью бросить курить<br><br><b>На выходных после работы:</b><br>• Выписать в заметках все хотелки (от глобальных до мелочей)<br>• Выписать все источники дохода и статьи расходов`
   },
   {
     id: 'note_invest',
@@ -76,11 +43,33 @@ const DEFAULT_SMART_NOTES = [
     title: 'Инвестор — Правила',
     badge: 'Стратегия 5 лет',
     badgeClass: 'badge-green',
-    content: `• **Акции (Яндекс, Лукойл, Сбер):** откладывать 10% от ЗП на протяжении ближайших 5 лет + реинвестировать 100% дивидендов обратно в акции.
-• **Ликвидность:** откладывать 8% от абсолютно любой прибыли в фонд LQDT.`
+    content: `• <b>Акции (Яндекс, Лукойл, Сбер):</b> откладывать 10% от ЗП на протяжении ближайших 5 лет + реинвестировать 100% дивидендов обратно в акции.<br>• <b>Ликвидность:</b> откладывать 8% от абсолютно любой прибыли в фонд LQDT.`
   }
 ];
 
+// Initial Car Logs (Журнал ТО KIA RIO)
+const DEFAULT_CAR_LOGS = [
+  {
+    id: 'car_3',
+    mileage: '209к',
+    date: '2026-08-15',
+    works: '• Ремонт фишки моторчика дворников'
+  },
+  {
+    id: 'car_2',
+    mileage: '206к',
+    date: '2026-07-20',
+    works: '• Ремонт моторчика дворников (проводка)\n• Замена всех задних лампочек\n• Полировка передних фар'
+  },
+  {
+    id: 'car_1',
+    mileage: '205к',
+    date: '2026-06-10',
+    works: '• Замена масла и фильтров\n• Замена задней правой ступицы\n• Замена задних тормозов'
+  }
+];
+
+// Initial Fixed Obligations
 const DEFAULT_FIXED_EXPENSES = [
   {
     id: 'fix_1',
@@ -94,6 +83,7 @@ const DEFAULT_FIXED_EXPENSES = [
   }
 ];
 
+// Initial Schemes
 const DEFAULT_SCHEMES = [
   {
     id: 'scheme_1',
@@ -118,6 +108,7 @@ const DEFAULT_SCHEMES = [
   }
 ];
 
+// Initial Wishlist
 const DEFAULT_WISHLIST = [
   {
     id: 'wish_1',
@@ -142,7 +133,9 @@ const DEFAULT_WISHLIST = [
   }
 ];
 
-let currentPeriod = 'day';
+// State
+let currentPeriod = 'day'; // 'day' | '12weeks'
+let currentNotesTab = 'pinned'; // 'pinned' | 'quick' | 'car'
 let selectedTwelveWeek = 1;
 let currentAnalyticsMonth = getYearMonthString(new Date());
 let currentWishFilter = 'all';
@@ -159,8 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initDayTasks();
   initTwelveWeeks();
   initIncomes();
-  initNotes();
+  initRichNotesEditor();
   initSmartNotes();
+  initCarHub();
   initSchemes();
   initWishlist();
   initDeltaAnalytics();
@@ -173,6 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initDefaults() {
   if (!localStorage.getItem(STORAGE_KEYS.SMART_NOTES)) saveStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
+  if (!localStorage.getItem(STORAGE_KEYS.CAR_OIL)) saveStored(STORAGE_KEYS.CAR_OIL, '212 000 км');
+  if (!localStorage.getItem(STORAGE_KEYS.CAR_LOGS)) saveStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
   if (!localStorage.getItem(STORAGE_KEYS.FIXED_EXPENSES)) saveStored(STORAGE_KEYS.FIXED_EXPENSES, DEFAULT_FIXED_EXPENSES);
   if (!localStorage.getItem(STORAGE_KEYS.SCHEMES)) saveStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
   if (!localStorage.getItem(STORAGE_KEYS.WISHLIST)) saveStored(STORAGE_KEYS.WISHLIST, DEFAULT_WISHLIST);
@@ -193,10 +189,14 @@ function getYearMonthString(d) {
 function initDate() {
   const options = { weekday: 'long', day: 'numeric', month: 'long' };
   const str = new Date().toLocaleDateString('ru-RU', options);
-  document.getElementById('current-date-text').textContent = str.charAt(0).toUpperCase() + str.slice(1);
+  const curDateEl = document.getElementById('current-date-text');
+  if (curDateEl) curDateEl.textContent = str.charAt(0).toUpperCase() + str.slice(1);
   
   const incDateEl = document.getElementById('income-date');
   if (incDateEl) incDateEl.value = getIsoDateString(new Date());
+
+  const carDateEl = document.getElementById('car-log-date');
+  if (carDateEl) carDateEl.value = getIsoDateString(new Date());
   
   const anMonthEl = document.getElementById('analytics-month-select');
   if (anMonthEl) anMonthEl.value = currentAnalyticsMonth;
@@ -241,6 +241,7 @@ function checkMidnightArchiving() {
 
 // ================= NAVIGATION =================
 function initNavigation() {
+  // Main 5-tabbar
   const tabBtns = document.querySelectorAll('.bottom-tabbar .tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -259,6 +260,7 @@ function initNavigation() {
     });
   });
 
+  // Analytics subtabs
   const subnavBtns = document.querySelectorAll('.subnav-btn');
   subnavBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -285,10 +287,11 @@ function initNavigation() {
     });
   });
 
-  const periodBtns = document.querySelectorAll('#tab-main .segmented-control .seg-btn');
-  periodBtns.forEach(btn => {
+  // 1. ISOLATED TASKS PERIOD SWITCHER (#tasks-period-control)
+  const taskPeriodBtns = document.querySelectorAll('#tasks-period-control .seg-btn');
+  taskPeriodBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      periodBtns.forEach(b => b.classList.remove('active'));
+      taskPeriodBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentPeriod = btn.getAttribute('data-period');
       
@@ -307,27 +310,30 @@ function initNavigation() {
     });
   });
 
-  const notesTabBtns = [document.getElementById('btn-notes-pinned'), document.getElementById('btn-notes-quick')];
-  notesTabBtns.forEach(btn => {
-    if (!btn) return;
+  // 2. ISOLATED 3-WAY NOTES SWITCHER (#notes-category-control: База | Мысли | Тачка)
+  // BUG FIX: Strictly does not touch tasks section!
+  const notesCategoryBtns = document.querySelectorAll('#notes-category-control .seg-btn');
+  notesCategoryBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      notesTabBtns.forEach(b => { if (b) b.classList.remove('active'); });
+      notesCategoryBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const tabType = btn.getAttribute('data-notes-tab');
+      currentNotesTab = btn.getAttribute('data-notes-tab');
       
       const pinnedC = document.getElementById('notes-pinned-container');
       const quickC = document.getElementById('notes-quick-container');
+      const carC = document.getElementById('notes-car-container');
 
-      if (tabType === 'pinned') {
-        pinnedC.style.display = 'block';
-        quickC.style.display = 'none';
-      } else {
-        pinnedC.style.display = 'none';
-        quickC.style.display = 'block';
-      }
+      pinnedC.style.display = (currentNotesTab === 'pinned') ? 'block' : 'none';
+      quickC.style.display = (currentNotesTab === 'quick') ? 'block' : 'none';
+      carC.style.display = (currentNotesTab === 'car') ? 'block' : 'none';
+
+      if (currentNotesTab === 'car') renderCarHub();
+      else if (currentNotesTab === 'pinned') renderSmartNotes();
+      else if (currentNotesTab === 'quick') renderNotes();
     });
   });
 
+  // Analytics month selector
   const anMonthSelect = document.getElementById('analytics-month-select');
   if (anMonthSelect) {
     anMonthSelect.addEventListener('change', (e) => {
@@ -336,6 +342,7 @@ function initNavigation() {
     });
   }
 
+  // Export JSON Backup
   const exportBtn = document.getElementById('btn-export-data');
   if (exportBtn) {
     exportBtn.addEventListener('click', () => {
@@ -349,6 +356,8 @@ function initNavigation() {
         fixedExpenses: getStored(STORAGE_KEYS.FIXED_EXPENSES, []),
         notes: getStored(STORAGE_KEYS.NOTES, []),
         smartNotes: getStored(STORAGE_KEYS.SMART_NOTES, []),
+        carOil: getStored(STORAGE_KEYS.CAR_OIL, '212 000 км'),
+        carLogs: getStored(STORAGE_KEYS.CAR_LOGS, []),
         schemes: getStored(STORAGE_KEYS.SCHEMES, []),
         wishlist: getStored(STORAGE_KEYS.WISHLIST, []),
         exportDate: new Date().toISOString()
@@ -532,14 +541,25 @@ function renderTwelveWeeks() {
   `).join('');
 }
 
-// ================= 3. SMART NOTES (БАЗА ЗНАНИЙ) =================
+// ================= 3. SMART NOTES (БАЗА ЗНАНИЙ) С iOS-ФОРМАТИРОВАНИЕМ =================
 function initSmartNotes() {
   const modal = document.getElementById('smart-note-modal');
   const addBtn = document.getElementById('btn-add-smart-note');
   const closeBtn = document.getElementById('btn-close-sn-modal');
   const saveBtn = document.getElementById('btn-save-smart-note');
   const deleteBtn = document.getElementById('btn-delete-smart-note');
+  const modalEditor = document.getElementById('sn-modal-rich-content');
   if (!modal) return;
+
+  // Toolbar buttons for Modal editor
+  const modalToolbarBtns = document.querySelectorAll('.modal-toolbar .toolbar-btn');
+  modalToolbarBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cmd = btn.getAttribute('data-cmd-modal');
+      execRichCommand(cmd, modalEditor);
+    });
+  });
 
   if (addBtn) {
     addBtn.addEventListener('click', () => {
@@ -549,7 +569,7 @@ function initSmartNotes() {
       document.getElementById('sn-modal-color').value = 'badge-blue';
       document.getElementById('sn-modal-title').value = '';
       document.getElementById('sn-modal-badge').value = '';
-      document.getElementById('sn-modal-content').value = '';
+      if (modalEditor) modalEditor.innerHTML = '';
       deleteBtn.style.display = 'none';
       modal.classList.add('active');
     });
@@ -563,7 +583,7 @@ function initSmartNotes() {
       const color = document.getElementById('sn-modal-color').value;
       const title = document.getElementById('sn-modal-title').value.trim();
       const badge = document.getElementById('sn-modal-badge').value.trim();
-      const content = document.getElementById('sn-modal-content').value;
+      const content = modalEditor ? modalEditor.innerHTML : '';
 
       if (!title) {
         alert('Укажите заголовок карточки');
@@ -617,6 +637,7 @@ function openEditSmartNote(id) {
   const deleteBtn = document.getElementById('btn-delete-smart-note');
   const notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
   const item = notes.find(n => n.id === id);
+  const modalEditor = document.getElementById('sn-modal-rich-content');
   if (!item || !modal) return;
 
   document.getElementById('smart-note-modal-title').textContent = 'Редактировать карточку';
@@ -624,7 +645,7 @@ function openEditSmartNote(id) {
   document.getElementById('sn-modal-color').value = item.badgeClass || 'badge-blue';
   document.getElementById('sn-modal-title').value = item.title;
   document.getElementById('sn-modal-badge').value = item.badge || '';
-  document.getElementById('sn-modal-content').value = item.content || '';
+  if (modalEditor) modalEditor.innerHTML = item.content || '';
   deleteBtn.style.display = 'block';
   modal.classList.add('active');
 }
@@ -644,7 +665,7 @@ function renderSmartNotes() {
         ${n.badge ? `<span class="smart-card-badge ${n.badgeClass || 'badge-blue'}">${escapeHtml(n.badge)}</span>` : ''}
       </div>
       <div class="smart-card-body">
-        ${formatMarkdownText(n.content)}
+        ${n.content || ''}
       </div>
       <div class="smart-card-actions">
         <button class="btn-card-edit" onclick="openEditSmartNote('${n.id}')">✏️ Настроить / Изменить</button>
@@ -653,37 +674,47 @@ function renderSmartNotes() {
   `).join('');
 }
 
-function formatMarkdownText(text) {
-  if (!text) return '';
-  let formatted = escapeHtml(text);
-  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  formatted = formatted.replace(/---/g, '<hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:8px 0;">');
-  formatted = formatted.replace(/• (.*)/g, '<div style="display:flex; gap:6px; margin-bottom:3px;"><span style="color:var(--accent-orange);">•</span><span>$1</span></div>');
-  formatted = formatted.replace(/  - (.*)/g, '<div style="display:flex; gap:6px; margin-left:14px; margin-bottom:2px;"><span style="color:var(--text-muted);">-</span><span>$1</span></div>');
-  return formatted.split('\n').join('<br>');
-}
-
-// ================= 4. QUICK NOTES =================
-function initNotes() {
-  const noteInput = document.getElementById('note-input');
+// ================= 4. iOS NOTES RICH EDITOR (МЫСЛИ) =================
+function initRichNotesEditor() {
+  const richEditor = document.getElementById('note-rich-editor');
   const saveBtn = document.getElementById('btn-save-note');
-  if (!noteInput || !saveBtn) return;
+  if (!richEditor || !saveBtn) return;
+
+  const toolbarBtns = document.querySelectorAll('.note-input-card .toolbar-btn');
+  toolbarBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cmd = btn.getAttribute('data-cmd');
+      execRichCommand(cmd, richEditor);
+    });
+  });
 
   saveBtn.addEventListener('click', () => {
-    const text = noteInput.value.trim();
-    if (!text) return;
+    const html = richEditor.innerHTML.trim();
+    if (!html || html === '<br>') return;
 
     const notes = getStored(STORAGE_KEYS.NOTES, []);
     notes.unshift({
       id: 'note_' + Date.now(),
-      text: text,
+      html: html,
       date: getIsoDateString(new Date()),
       time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
     });
     saveStored(STORAGE_KEYS.NOTES, notes);
-    noteInput.value = '';
+    richEditor.innerHTML = '';
     renderNotes();
   });
+}
+
+function execRichCommand(cmd, targetElement) {
+  targetElement.focus();
+  if (cmd === 'hilite') {
+    document.execCommand('hiliteColor', false, 'rgba(245, 158, 11, 0.35)');
+  } else if (cmd === 'insertHorizontalRule') {
+    document.execCommand('insertHorizontalRule', false, null);
+  } else {
+    document.execCommand(cmd, false, null);
+  }
 }
 
 function deleteNote(id) {
@@ -707,12 +738,107 @@ function renderNotes() {
     <div class="note-item">
       <button class="note-del" onclick="deleteNote('${n.id}')">✕</button>
       <div class="note-time">${n.date} в ${n.time}</div>
-      <div class="note-body">${escapeHtml(n.text)}</div>
+      <div class="note-body">${n.html || escapeHtml(n.text || '')}</div>
     </div>
   `).join('');
 }
 
-// ================= 5. INCOMES SCREEN =================
+// ================= 5. 🚗 CAR HUB (ТАЧКА & ЖУРНАЛ ТО) =================
+function initCarHub() {
+  // 1. Oil Status Modal
+  const oilModal = document.getElementById('car-oil-modal');
+  const editOilBtn = document.getElementById('btn-edit-oil-status');
+  const closeOilBtn = document.getElementById('btn-close-oil-modal');
+  const saveOilBtn = document.getElementById('btn-save-oil-modal');
+  const oilInput = document.getElementById('modal-car-oil-input');
+
+  if (editOilBtn && oilModal) {
+    editOilBtn.addEventListener('click', () => {
+      oilInput.value = getStored(STORAGE_KEYS.CAR_OIL, '212 000 км');
+      oilModal.classList.add('active');
+    });
+  }
+  if (closeOilBtn) closeOilBtn.addEventListener('click', () => oilModal.classList.remove('active'));
+  if (saveOilBtn) {
+    saveOilBtn.addEventListener('click', () => {
+      const val = oilInput.value.trim() || '212 000 км';
+      saveStored(STORAGE_KEYS.CAR_OIL, val);
+      oilModal.classList.remove('active');
+      renderCarHub();
+    });
+  }
+
+  // 2. Add Maintenance Entry Form
+  const addLogBtn = document.getElementById('btn-add-car-log');
+  const mileageInput = document.getElementById('car-log-mileage');
+  const dateInput = document.getElementById('car-log-date');
+  const worksInput = document.getElementById('car-log-works');
+
+  if (addLogBtn) {
+    addLogBtn.addEventListener('click', () => {
+      const mileage = mileageInput.value.trim();
+      const dateVal = dateInput.value || getIsoDateString(new Date());
+      const works = worksInput.value.trim();
+
+      if (!mileage || !works) {
+        alert('Укажите пробег и выполненные работы');
+        return;
+      }
+
+      const logs = getStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
+      logs.unshift({
+        id: 'car_' + Date.now(),
+        mileage: mileage,
+        date: dateVal,
+        works: works
+      });
+      saveStored(STORAGE_KEYS.CAR_LOGS, logs);
+
+      mileageInput.value = '';
+      worksInput.value = '';
+      renderCarHub();
+    });
+  }
+}
+
+function deleteCarLog(id) {
+  let logs = getStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
+  logs = logs.filter(l => l.id !== id);
+  saveStored(STORAGE_KEYS.CAR_LOGS, logs);
+  renderCarHub();
+}
+
+function renderCarHub() {
+  // Update Oil display
+  const oilTarget = getStored(STORAGE_KEYS.CAR_OIL, '212 000 км');
+  const oilEl = document.getElementById('car-oil-target-km');
+  if (oilEl) oilEl.textContent = oilTarget;
+
+  // Render Log List
+  const container = document.getElementById('car-maintenance-list');
+  if (!container) return;
+  const logs = getStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
+
+  if (logs.length === 0) {
+    container.innerHTML = `<div class="empty-state">Журнал обслуживания пуст. Добавьте первую запись выше 🚗</div>`;
+    return;
+  }
+
+  container.innerHTML = logs.map(l => `
+    <div class="car-log-card">
+      <div class="car-log-header">
+        <span class="car-log-mileage-badge">🔧 Пробег: ${escapeHtml(l.mileage)}</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 12px; color: var(--text-muted);">${l.date}</span>
+          <button class="task-del-btn" onclick="deleteCarLog('${l.id}')">✕</button>
+        </div>
+      </div>
+      <div class="car-log-works">${escapeHtml(l.works)}</div>
+    </div>
+  `).join('');
+}
+
+// ================= 6. INCOMES SCREEN =================
 function initIncomes() {
   const amountInput = document.getElementById('income-amount');
   const catInput = document.getElementById('income-category');
@@ -731,15 +857,14 @@ function initIncomes() {
     }
 
     const incomes = getStored(STORAGE_KEYS.INCOMES, []);
-    const newEntry = {
+    incomes.unshift({
       id: 'inc_' + Date.now(),
       amount: amount,
       category: catInput.value,
       description: descInput.value.trim(),
       date: dateVal,
       timestamp: Date.now()
-    };
-    incomes.unshift(newEntry);
+    });
     saveStored(STORAGE_KEYS.INCOMES, incomes);
 
     amountInput.value = '';
@@ -788,7 +913,7 @@ function renderIncomesScreen() {
   `).join('');
 }
 
-// ================= 6. ТЕМКИ (SCHEMES) =================
+// ================= 7. ТЕМКИ (SCHEMES) =================
 function initSchemes() {
   const titleInput = document.getElementById('scheme-title');
   const potentialInput = document.getElementById('scheme-potential');
@@ -949,7 +1074,7 @@ function renderSchemes() {
   }).join('');
 }
 
-// ================= 7. WISHLIST =================
+// ================= 8. WISHLIST =================
 function initWishlist() {
   const titleInput = document.getElementById('wish-title');
   const priceInput = document.getElementById('wish-price');
@@ -1051,7 +1176,7 @@ function renderWishlist() {
   `).join('');
 }
 
-// ================= 8. DELTA ANALYTICS & FIXED EXPENSES =================
+// ================= 9. DELTA ANALYTICS & FIXED EXPENSES =================
 function initDeltaAnalytics() {
   const expenseInput = document.getElementById('monthly-total-expense-input');
   const saveExpenseBtn = document.getElementById('btn-save-monthly-total-expense');
@@ -1243,6 +1368,7 @@ function renderAll() {
   renderDayTasks();
   renderSmartNotes();
   renderNotes();
+  renderCarHub();
   renderIncomesScreen();
   renderSchemes();
   renderWishlist();

@@ -27,7 +27,7 @@
 
   <div class="app-container">
     
-    <!-- ================= TAB 1: ГЛАВНАЯ (ТОЛЬКО ДЕЛА И БАЗА/МЫСЛИ) ================= -->
+    <!-- ================= TAB 1: ГЛАВНАЯ ================= -->
     <main id="tab-main" class="tab-content active">
       
       <header class="app-header glass-card">
@@ -43,13 +43,14 @@
       </header>
 
       <!-- 1. БЛОК ЗАДАЧ (ДЕНЬ / 12 НЕДЕЛЬ) -->
-      <section class="section-container">
+      <section class="section-container" id="section-tasks">
         <div class="section-header">
           <div class="section-title-wrap">
             <span class="indicator-dot dot-amber"></span>
             <h2 class="section-title">Списки дел</h2>
           </div>
-          <div class="segmented-control">
+          <!-- Tasks Isolated Switcher -->
+          <div class="segmented-control" id="tasks-period-control">
             <button class="seg-btn active" data-period="day">День</button>
             <button class="seg-btn" data-period="12weeks">12 Недель</button>
           </div>
@@ -99,21 +100,23 @@
         </div>
       </section>
 
-      <!-- 2. БЛОК ЗАМЕТОК И БАЗЫ ЗНАНИЙ (С ПОЛНЫМ CRUD) -->
-      <section class="section-container" style="margin-bottom: 95px;">
+      <!-- 2. БЛОК ЗАМЕТОК, БАЗЫ И ТАЧКИ -->
+      <section class="section-container" id="section-notes-hub" style="margin-bottom: 95px;">
         <div class="section-header">
           <div class="section-title-wrap">
             <span class="indicator-dot dot-purple"></span>
             <h2 class="section-title">Заметки & База</h2>
           </div>
-          <div class="segmented-control">
-            <button class="seg-btn active" id="btn-notes-pinned" data-notes-tab="pinned">База</button>
-            <button class="seg-btn" id="btn-notes-quick" data-notes-tab="quick">Мысли</button>
+          <!-- Notes Isolated 3-way Switcher -->
+          <div class="segmented-control" id="notes-category-control">
+            <button class="seg-btn active" data-notes-tab="pinned">База</button>
+            <button class="seg-btn" data-notes-tab="quick">Мысли</button>
+            <button class="seg-btn" data-notes-tab="car">🚗 Тачка</button>
           </div>
         </div>
 
         <!-- 2.1 БАЗА ЗНАНИЙ -->
-        <div id="notes-pinned-container">
+        <div id="notes-pinned-container" class="notes-subpane">
           <div class="pinned-top-bar">
             <button class="btn-glass-sm" id="btn-add-smart-note">+ Добавить карточку в базу</button>
           </div>
@@ -121,22 +124,78 @@
         </div>
 
         <!-- 2.2 БЫСТРЫЕ МЫСЛИ -->
-        <div id="notes-quick-container" style="display: none;">
+        <div id="notes-quick-container" class="notes-subpane" style="display: none;">
           <div class="glass-card note-input-card">
-            <textarea id="note-input" placeholder="Мысли, идеи, инсайты за день..." rows="2"></textarea>
+            <!-- iOS Style Note Editor with Toolbar -->
+            <div class="note-editor-toolbar">
+              <button type="button" class="toolbar-btn" data-cmd="bold" title="Жирный"><b>B</b></button>
+              <button type="button" class="toolbar-btn" data-cmd="italic" title="Курсив"><i>I</i></button>
+              <button type="button" class="toolbar-btn" data-cmd="insertUnorderedList" title="Список">• Список</button>
+              <button type="button" class="toolbar-btn" data-cmd="insertOrderedList" title="Нумерация">1. Список</button>
+              <button type="button" class="toolbar-btn" data-cmd="hilite" title="Выделить">⚡️</button>
+              <button type="button" class="toolbar-btn" data-cmd="insertHorizontalRule" title="Разделитель">—</button>
+            </div>
+            <div id="note-rich-editor" class="rich-editor-box" contenteditable="true" placeholder="Мысли, идеи, инсайты за день..."></div>
             <div class="note-actions">
               <button class="btn-glass-sm" id="btn-save-note">Сохранить мысль</button>
             </div>
           </div>
           <div id="notes-list" class="notes-list"></div>
         </div>
+
+        <!-- 2.3 ОТДЕЛЬНЫЙ БЛОК: ТАЧКА (KIA RIO & ТО) -->
+        <div id="notes-car-container" class="notes-subpane" style="display: none;">
+          <!-- Oil Change Status Banner -->
+          <div class="glass-card car-status-card">
+            <div class="car-status-header">
+              <div class="car-badge-title">
+                <span style="font-size: 20px;">🚗</span>
+                <div>
+                  <h3 style="font-size: 16px; font-weight: 700;">KIA RIO</h3>
+                  <span style="font-size: 12px; color: var(--text-muted);">Бортовой журнал & ТО</span>
+                </div>
+              </div>
+              <button class="btn-card-edit" id="btn-edit-oil-status">✏️ Изменить</button>
+            </div>
+            
+            <div class="oil-status-box">
+              <span class="oil-label">Следующая замена масла:</span>
+              <span class="oil-km text-green" id="car-oil-target-km">212 000 км</span>
+            </div>
+          </div>
+
+          <!-- Add Maintenance Entry Form -->
+          <div class="glass-card car-entry-form-card" style="margin-top: 12px;">
+            <div class="car-form-title">Записать техобслуживание / ремонт</div>
+            
+            <div class="car-form-grid">
+              <input type="text" id="car-log-mileage" placeholder="Пробег (напр. 212к или 212 000 км)">
+              <input type="date" id="car-log-date" class="glass-date-input-full" title="Дата ТО">
+            </div>
+
+            <textarea id="car-log-works" placeholder="Выполненные работы (напр.: замена масла и фильтров, замена колодок...)" rows="3"></textarea>
+
+            <button class="btn-green-glow" id="btn-add-car-log" style="margin-top: 10px;">
+              + Добавить запись в журнал
+            </button>
+          </div>
+
+          <!-- Maintenance Timeline List -->
+          <div class="section-header" style="margin-top: 18px;">
+            <div class="section-title-wrap">
+              <span class="indicator-dot dot-amber"></span>
+              <h3 class="section-title">История обслуживания</h3>
+            </div>
+          </div>
+          <div id="car-maintenance-list" class="car-logs-list"></div>
+        </div>
+
       </section>
 
     </main>
 
-    <!-- ================= TAB 2: ДОХОДЫ (ОТДЕЛЬНЫЙ ЭКРАН) ================= -->
+    <!-- ================= TAB 2: ДОХОДЫ ================= -->
     <main id="tab-income" class="tab-content">
-      
       <header class="app-header glass-card">
         <div class="header-content">
           <div>
@@ -147,7 +206,6 @@
         </div>
       </header>
 
-      <!-- Форма добавления дохода -->
       <section class="section-container">
         <div class="glass-card glass-card-glow-green income-widget">
           <div class="income-widget-title" style="margin-bottom: 12px; font-weight: 700; font-size: 16px;">
@@ -179,7 +237,6 @@
         </div>
       </section>
 
-      <!-- Хронологическая лента последних доходов -->
       <section class="section-container" style="margin-bottom: 95px;">
         <div class="section-header">
           <div class="section-title-wrap">
@@ -189,12 +246,10 @@
         </div>
         <div id="income-recent-list" class="history-list"></div>
       </section>
-
     </main>
 
-    <!-- ================= TAB 3: ТЕМКИ (БИЗНЕС-ИДЕИ & ХАСЛ) ================= -->
+    <!-- ================= TAB 3: ТЕМКИ ================= -->
     <main id="tab-schemes" class="tab-content">
-      
       <header class="app-header glass-card">
         <div class="header-content">
           <div>
@@ -205,7 +260,6 @@
         </div>
       </header>
 
-      <!-- Форма добавления темки -->
       <section class="section-container">
         <div class="glass-card scheme-add-card">
           <div class="scheme-form-main">
@@ -226,7 +280,6 @@
         </div>
       </section>
 
-      <!-- Фильтры статусов -->
       <div class="weeks-carousel-wrapper">
         <div class="weeks-carousel" id="scheme-filter-pills">
           <button class="week-pill active" data-scheme-filter="all">Все темки</button>
@@ -236,16 +289,13 @@
         </div>
       </div>
 
-      <!-- Список темок -->
       <section class="section-container" style="margin-bottom: 95px;">
         <div id="schemes-items-list" class="schemes-grid"></div>
       </section>
-
     </main>
 
-    <!-- ================= TAB 4: ХОТЕЛКИ & МОТИВАЦИЯ ================= -->
+    <!-- ================= TAB 4: ХОТЕЛКИ ================= -->
     <main id="tab-wishlist" class="tab-content">
-      
       <header class="app-header glass-card">
         <div class="header-content">
           <div>
@@ -256,7 +306,6 @@
         </div>
       </header>
 
-      <!-- Добавление хотелки -->
       <section class="section-container">
         <div class="glass-card wishlist-add-card">
           <div class="wishlist-form-main">
@@ -283,7 +332,6 @@
         </div>
       </section>
 
-      <!-- Фильтры хотилок (100% рабочий фикс) -->
       <div class="weeks-carousel-wrapper">
         <div class="weeks-carousel" id="wish-filter-pills">
           <button class="week-pill active" data-filter="all">Все хотелки</button>
@@ -292,16 +340,13 @@
         </div>
       </div>
 
-      <!-- Список хотилок -->
       <section class="section-container" style="margin-bottom: 95px;">
         <div id="wishlist-items-list" class="wishlist-grid"></div>
       </section>
-
     </main>
 
     <!-- ================= TAB 5: АНАЛИТИКА & ДЕЛЬТА ================= -->
     <main id="tab-analytics" class="tab-content">
-      
       <header class="app-header glass-card">
         <h1 class="header-title">Аналитика & Дельта</h1>
         <div class="subnav-tabs">
@@ -310,10 +355,7 @@
         </div>
       </header>
 
-      <!-- Subtab 1: Финансовая аналитика и Дельта -->
       <div id="subtab-fin-analytics" class="subtab-pane active" style="margin-bottom: 95px;">
-        
-        <!-- Выбор месяца -->
         <div class="glass-card month-bar">
           <div class="month-picker-row-compact">
             <span class="month-bar-title">Отчетный месяц:</span>
@@ -321,7 +363,7 @@
           </div>
         </div>
 
-        <!-- КАЛЬКУЛЯТОР ДЕЛЬТЫ (СКОЛЬКО ПРИШЛО / УШЛО / ЧИСТЫЙ ИТОГ) -->
+        <!-- КАЛЬКУЛЯТОР ДЕЛЬТЫ -->
         <div class="glass-card delta-hero-card">
           <div class="delta-grid-3">
             <div class="delta-stat-box">
@@ -338,7 +380,6 @@
             </div>
           </div>
 
-          <!-- Простое поле ввода фактических расходов за месяц -->
           <div class="single-expense-input-box">
             <label for="monthly-total-expense-input">Фактический расход за месяц (все траты из банка):</label>
             <div class="input-row-inner" style="margin-top: 6px;">
@@ -348,7 +389,7 @@
           </div>
         </div>
 
-        <!-- БЛОК: ФИКСИРОВАННЫЕ РАСХОДЫ (ОБЯЗАТЕЛЬНАЯ ФИКСА) -->
+        <!-- ОБЯЗАТЕЛЬНАЯ ФИКСА -->
         <section class="section-container">
           <div class="section-header">
             <div class="section-title-wrap">
@@ -367,7 +408,7 @@
           </div>
         </section>
 
-        <!-- СВОДКА ДОХОДОВ ПО КАТЕГОРИЯМ -->
+        <!-- СВОДКА ДОХОДОВ -->
         <section class="section-container">
           <div class="section-header">
             <div class="section-title-wrap">
@@ -381,7 +422,7 @@
           </div>
         </section>
 
-        <!-- ПОЛНАЯ ИСТОРИЯ ДОХОДОВ (СОРТИРОВКА ПО ДАТЕ) -->
+        <!-- ПОЛНАЯ ИСТОРИЯ ДОХОДОВ -->
         <section class="section-container">
           <div class="section-header">
             <div class="section-title-wrap">
@@ -391,10 +432,8 @@
           </div>
           <div id="full-income-history" class="history-list"></div>
         </section>
-
       </div>
 
-      <!-- Subtab 2: Архив выполненных дел -->
       <div id="subtab-tasks-archive" class="subtab-pane" style="display: none; margin-bottom: 95px;">
         <div class="section-container">
           <div class="info-banner glass-card">
@@ -404,10 +443,9 @@
           <div id="archive-tasks-list" class="archive-list"></div>
         </div>
       </div>
-
     </main>
 
-    <!-- ================= BOTTOM TABBAR (5 ТАБОВ) ================= -->
+    <!-- ================= BOTTOM TABBAR ================= -->
     <nav class="bottom-tabbar glass-card">
       <button class="tab-btn active" data-tab="tab-main">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -431,18 +469,18 @@
       </button>
     </nav>
 
-    <!-- Modal 1: Полный CRUD карточки Базы Знаний -->
+    <!-- Modal 1: CRUD Базы Знаний с iOS-форматированием -->
     <div id="smart-note-modal" class="modal-overlay">
       <div class="modal-card glass-card">
         <h3 class="modal-title" id="smart-note-modal-title">Карточка базы</h3>
         
         <div class="modal-field-grid-2">
           <div class="modal-field">
-            <label>Иконка / Эмодзи</label>
-            <input type="text" id="sn-modal-icon" placeholder="🚗">
+            <label>Эмодзи</label>
+            <input type="text" id="sn-modal-icon" placeholder="📌">
           </div>
           <div class="modal-field">
-            <label>Цвет бейджа</label>
+            <label>Цвет подсветки</label>
             <select id="sn-modal-color" class="glass-select">
               <option value="badge-blue">Голубой</option>
               <option value="badge-orange">Оранжевый</option>
@@ -453,18 +491,27 @@
         </div>
 
         <div class="modal-field">
-          <label>Заголовок карточки</label>
-          <input type="text" id="sn-modal-title" placeholder="KIA RIO — Авто & ТО">
+          <label>Заголовок</label>
+          <input type="text" id="sn-modal-title" placeholder="Название карточки...">
         </div>
 
         <div class="modal-field">
-          <label>Подсветка / Бейдж (Масло: 212.000 км, Режим и т.д.)</label>
-          <input type="text" id="sn-modal-badge" placeholder="Масло: 212.000 км">
+          <label>Подсветка / Бейдж (напр. Сентябрь, Режим...)</label>
+          <input type="text" id="sn-modal-badge" placeholder="Текст плашки">
         </div>
 
         <div class="modal-field">
-          <label>Содержимое карточки (поддерживает списки • и -)</label>
-          <textarea id="sn-modal-content" rows="6"></textarea>
+          <label>Содержимое</label>
+          <!-- iOS Toolbar for Modal -->
+          <div class="note-editor-toolbar modal-toolbar">
+            <button type="button" class="toolbar-btn" data-cmd-modal="bold"><b>B</b></button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="italic"><i>I</i></button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="insertUnorderedList">• Список</button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="insertOrderedList">1. Список</button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="hilite">⚡️</button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="insertHorizontalRule">—</button>
+          </div>
+          <div id="sn-modal-rich-content" class="rich-editor-box" contenteditable="true" style="min-height: 120px;"></div>
         </div>
 
         <div class="modal-actions-between">
@@ -477,10 +524,10 @@
       </div>
     </div>
 
-    <!-- Modal 2: Редактирование / Добавление Темки -->
+    <!-- Modal 2: Редактирование Темки -->
     <div id="scheme-modal" class="modal-overlay">
       <div class="modal-card glass-card">
-        <h3 class="modal-title" id="scheme-modal-title">Редактировать темку</h3>
+        <h3 class="modal-title">Редактировать темку</h3>
         
         <div class="modal-field">
           <label>Название темки</label>
@@ -516,7 +563,7 @@
       </div>
     </div>
 
-    <!-- Modal 3: Добавление фиксированного расхода -->
+    <!-- Modal 3: Фиксированный расход -->
     <div id="fixed-expense-modal" class="modal-overlay">
       <div class="modal-card glass-card">
         <h3 class="modal-title">Обязательный фиксированный расход</h3>
@@ -535,6 +582,24 @@
         <div class="modal-actions">
           <button class="btn-glass-sm" id="btn-close-fixed-modal">Отмена</button>
           <button class="btn-red-glow" id="btn-save-fixed-expense">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Редактировать статус масла авто -->
+    <div id="car-oil-modal" class="modal-overlay">
+      <div class="modal-card glass-card">
+        <h3 class="modal-title">Следующая замена масла</h3>
+        <p class="modal-sub">Укажи пробег до следующего ТО</p>
+        
+        <div class="modal-field">
+          <label>Пробег следующей замены</label>
+          <input type="text" id="modal-car-oil-input" placeholder="212 000 км">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-glass-sm" id="btn-close-oil-modal">Отмена</button>
+          <button class="btn-green-glow" id="btn-save-oil-modal" style="width: auto; padding: 8px 16px;">Сохранить</button>
         </div>
       </div>
     </div>
