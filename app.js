@@ -1,22 +1,23 @@
 // ============================================================
-// APP LOGIC & LOCAL PERSISTENCE (V5 WITH "ТЕМКИ" TAB)
+// APP LOGIC & LOCAL PERSISTENCE (V6 COMPLETE SPECIFICATION)
 // ============================================================
 
 const STORAGE_KEYS = {
-  TASKS: 'pwa_tasks_v5',
-  TWELVE_GOAL: 'pwa_twelve_goal_v5',
-  TWELVE_TASKS: 'pwa_twelve_tasks_v5',
-  ARCHIVE: 'pwa_archive_v5',
-  INCOMES: 'pwa_incomes_v5',
-  EXPENSES: 'pwa_monthly_expenses_v5',
-  NOTES: 'pwa_notes_v5',
-  SMART_NOTES: 'pwa_smart_notes_v5',
-  SCHEMES: 'pwa_schemes_v5',
-  WISHLIST: 'pwa_wishlist_v5',
+  TASKS: 'pwa_tasks_v6',
+  TWELVE_GOAL: 'pwa_twelve_goal_v6',
+  TWELVE_TASKS: 'pwa_twelve_tasks_v6',
+  ARCHIVE: 'pwa_archive_v6',
+  INCOMES: 'pwa_incomes_v6',
+  MONTHLY_EXPENSE_TOTAL: 'pwa_monthly_expense_total_v6',
+  FIXED_EXPENSES: 'pwa_fixed_expenses_v6',
+  NOTES: 'pwa_notes_v6',
+  SMART_NOTES: 'pwa_smart_notes_v6',
+  SCHEMES: 'pwa_schemes_v6',
+  WISHLIST: 'pwa_wishlist_v6',
   LAST_DATE: 'pwa_last_login_date'
 };
 
-// Initial Knowledge Base Notes from User Markdown
+// Initial Smart Notes (База знаний)
 const DEFAULT_SMART_NOTES = [
   {
     id: 'note_kia',
@@ -81,39 +82,50 @@ const DEFAULT_SMART_NOTES = [
   }
 ];
 
-// Initial Starter Schemes ("Темки")
-const DEFAULT_SCHEMES = [
+// Initial Fixed Obligations (Обязательная фикса)
+const DEFAULT_FIXED_EXPENSES = [
   {
-    id: 'scheme_1',
-    title: 'Купить электровелик и сдавать в аренду курьерам',
-    tag: '🚲 Аренда & Прокат',
-    potential: '15 000 - 25 000 ₽ / мес',
-    status: 'idea', // 'idea' | 'in_progress' | 'launched'
-    notes: 'Купить б/у Minako или колхозник, батарею повышенной емкости. Сдавать по договору посуточно или понедельно курьерам.'
+    id: 'fix_1',
+    name: 'Фикса за жилье (аренда + коммуналка)',
+    amount: 26000
   },
   {
-    id: 'scheme_2',
-    title: 'Купить гараж и сдавать в аренду под склад / авто',
-    tag: '🏢 Недвижка & Гаражи',
-    potential: '7 000 - 12 000 ₽ / мес',
-    status: 'idea',
-    notes: 'Найти недорогой сухой гараж с электричеством в спальнике. Сдавать под хранение шин, мотоцикла или личных вещей.'
-  },
-  {
-    id: 'scheme_3',
-    title: 'Устроиться на удаленку (IT / саппорт / верстка)',
-    tag: '💼 Работа & Удаленка',
-    potential: '70 000 - 120 000 ₽ / мес',
-    status: 'in_progress',
-    notes: 'Обновить резюме, упаковать кейсы по сайтам и ботам. Рассылать отклики по 5 штук в день.'
+    id: 'fix_2',
+    name: 'Мобильная связь (Yota)',
+    amount: 500
   }
 ];
 
-// Initial Starter Wishlist
+// Initial Schemes (Темки)
+const DEFAULT_SCHEMES = [
+  {
+    id: 'scheme_1',
+    title: 'Купить электровелик и сдавать в аренду',
+    potential: '20 000 ₽ / мес',
+    status: 'idea',
+    notes: 'Купить Minako / колхозник, батарею 60V. Сдавать по договору посуточно курьерам.'
+  },
+  {
+    id: 'scheme_2',
+    title: 'Купить гараж и сдавать под склад / авто',
+    potential: '8 000 ₽ / мес',
+    status: 'idea',
+    notes: 'Найти сухой кооперативный гараж в спальнике. Сдавать под хранение шин и мототехники.'
+  },
+  {
+    id: 'scheme_3',
+    title: 'Устроиться на удаленку (IT / саппорт)',
+    potential: '80 000 ₽ / мес',
+    status: 'in_progress',
+    notes: 'Упаковать кейсы по сайтам и ботам. Отправлять отклики.'
+  }
+];
+
+// Initial Wishlist (Хотелки)
 const DEFAULT_WISHLIST = [
   {
     id: 'wish_1',
-    title: 'Своя квартира (первый взнос / покупка)',
+    title: 'Своя квартира (покупка / взнос)',
     price: 3500000,
     tag: '🎯 Глобальное',
     bought: false
@@ -127,7 +139,7 @@ const DEFAULT_WISHLIST = [
   },
   {
     id: 'wish_3',
-    title: 'MacBook Pro для работы и кодинга',
+    title: 'MacBook Pro для работы',
     price: 180000,
     tag: '💻 Техника',
     bought: false
@@ -138,14 +150,14 @@ const DEFAULT_WISHLIST = [
 let currentPeriod = 'day';
 let selectedTwelveWeek = 1;
 let currentAnalyticsMonth = getYearMonthString(new Date());
-let activeEditingNoteId = null;
-let currentWishFilter = 'all';
+let currentWishFilter = 'all'; // 'all' | 'active' | 'done'
 let currentSchemeFilter = 'all';
 
+let editingSmartNoteId = null; // null = adding new
+let editingSchemeId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-  initSmartNotesDefault();
-  initSchemesDefault();
-  initWishlistDefault();
+  initDefaults();
   initDate();
   checkMidnightArchiving();
   initNavigation();
@@ -156,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmartNotes();
   initSchemes();
   initWishlist();
-  initExpenses();
+  initDeltaAnalytics();
   renderAll();
 
   if ('serviceWorker' in navigator) {
@@ -164,23 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function initSmartNotesDefault() {
-  if (!localStorage.getItem(STORAGE_KEYS.SMART_NOTES)) {
-    saveStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
-  }
-}
-function initSchemesDefault() {
-  if (!localStorage.getItem(STORAGE_KEYS.SCHEMES)) {
-    saveStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
-  }
-}
-function initWishlistDefault() {
-  if (!localStorage.getItem(STORAGE_KEYS.WISHLIST)) {
-    saveStored(STORAGE_KEYS.WISHLIST, DEFAULT_WISHLIST);
-  }
+function initDefaults() {
+  if (!localStorage.getItem(STORAGE_KEYS.SMART_NOTES)) saveStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
+  if (!localStorage.getItem(STORAGE_KEYS.FIXED_EXPENSES)) saveStored(STORAGE_KEYS.FIXED_EXPENSES, DEFAULT_FIXED_EXPENSES);
+  if (!localStorage.getItem(STORAGE_KEYS.SCHEMES)) saveStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+  if (!localStorage.getItem(STORAGE_KEYS.WISHLIST)) saveStored(STORAGE_KEYS.WISHLIST, DEFAULT_WISHLIST);
 }
 
-// Date helpers
 function getIsoDateString(d) {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -202,7 +204,6 @@ function initDate() {
   document.getElementById('analytics-month-select').value = currentAnalyticsMonth;
 }
 
-// Storage helpers
 function getStored(key, def) {
   try {
     const val = localStorage.getItem(key);
@@ -215,7 +216,6 @@ function saveStored(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
 
-// Midnight Archiving
 function checkMidnightArchiving() {
   const todayStr = getIsoDateString(new Date());
   const tasks = getStored(STORAGE_KEYS.TASKS, []);
@@ -243,7 +243,6 @@ function checkMidnightArchiving() {
 
 // ================= NAVIGATION =================
 function initNavigation() {
-  // Main Tabbar (Главная, Темки, Хотелки, Аналитика)
   const tabBtns = document.querySelectorAll('.bottom-tabbar .tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -254,17 +253,14 @@ function initNavigation() {
       const targetId = btn.getAttribute('data-tab');
       document.getElementById(targetId).classList.add('active');
 
-      if (targetId === 'tab-analytics') {
-        renderAnalytics();
-      } else if (targetId === 'tab-wishlist') {
-        renderWishlist();
-      } else if (targetId === 'tab-schemes') {
-        renderSchemes();
-      }
+      if (targetId === 'tab-analytics') renderAnalytics();
+      else if (targetId === 'tab-wishlist') renderWishlist();
+      else if (targetId === 'tab-schemes') renderSchemes();
+      else if (targetId === 'tab-income') renderIncomesScreen();
     });
   });
 
-  // Analytics Subtabs
+  // Analytics subtabs
   const subnavBtns = document.querySelectorAll('.subnav-btn');
   subnavBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -292,7 +288,7 @@ function initNavigation() {
   });
 
   // Tasks Period Selector (День vs 12 Недель)
-  const periodBtns = document.querySelectorAll('.section-container:first-of-type .seg-btn');
+  const periodBtns = document.querySelectorAll('#tab-main .segmented-control .seg-btn');
   periodBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       periodBtns.forEach(b => b.classList.remove('active'));
@@ -349,7 +345,8 @@ function initNavigation() {
       twelveTasks: getStored(STORAGE_KEYS.TWELVE_TASKS, []),
       archive: getStored(STORAGE_KEYS.ARCHIVE, []),
       incomes: getStored(STORAGE_KEYS.INCOMES, []),
-      expenses: getStored(STORAGE_KEYS.EXPENSES, []),
+      monthlyExpenseTotal: getStored(STORAGE_KEYS.MONTHLY_EXPENSE_TOTAL, {}),
+      fixedExpenses: getStored(STORAGE_KEYS.FIXED_EXPENSES, []),
       notes: getStored(STORAGE_KEYS.NOTES, []),
       smartNotes: getStored(STORAGE_KEYS.SMART_NOTES, []),
       schemes: getStored(STORAGE_KEYS.SCHEMES, []),
@@ -446,7 +443,7 @@ function initTwelveWeeks() {
   saveGoalBtn.addEventListener('click', () => {
     saveStored(STORAGE_KEYS.TWELVE_GOAL, goalTextarea.value.trim());
     saveGoalBtn.textContent = 'Сохранено!';
-    setTimeout(() => { saveGoalBtn.textContent = 'Сохранить цель'; }, 1500);
+    setTimeout(() => { saveGoalBtn.textContent = 'Сохранить'; }, 1500);
   });
 
   const addTwelveTask = () => {
@@ -501,7 +498,7 @@ function renderTwelveWeeks() {
   }
   pillsContainer.innerHTML = pillsHtml;
 
-  document.getElementById('selected-week-title').textContent = `Неделя ${selectedTwelveWeek}: Шаги и действия`;
+  document.getElementById('selected-week-title').textContent = `Неделя ${selectedTwelveWeek}: Шаги и задачи`;
 
   const allTwelveTasks = getStored(STORAGE_KEYS.TWELVE_TASKS, []);
   const weekTasks = allTwelveTasks.filter(t => t.week === selectedTwelveWeek);
@@ -527,94 +524,94 @@ function renderTwelveWeeks() {
   `).join('');
 }
 
-// ================= 3. INCOMES =================
-function initIncomes() {
-  const amountInput = document.getElementById('income-amount');
-  const catInput = document.getElementById('income-category');
-  const dateInput = document.getElementById('income-date');
-  const descInput = document.getElementById('income-desc');
-  const saveBtn = document.getElementById('btn-save-income');
-
-  saveBtn.addEventListener('click', () => {
-    const amount = parseFloat(amountInput.value);
-    const dateVal = dateInput.value || getIsoDateString(new Date());
-
-    if (!amount || amount <= 0) {
-      alert('Укажите корректную сумму дохода');
-      return;
-    }
-
-    const incomes = getStored(STORAGE_KEYS.INCOMES, []);
-    const newEntry = {
-      id: 'inc_' + Date.now(),
-      amount: amount,
-      category: catInput.value,
-      description: descInput.value.trim(),
-      date: dateVal,
-      timestamp: Date.now()
-    };
-    incomes.unshift(newEntry);
-    saveStored(STORAGE_KEYS.INCOMES, incomes);
-
-    amountInput.value = '';
-    descInput.value = '';
-    renderIncomeWidget();
-  });
-}
-
-function renderIncomeWidget() {
-  const incomes = getStored(STORAGE_KEYS.INCOMES, []);
-  const todayStr = getIsoDateString(new Date());
-  
-  const todayList = incomes.filter(i => i.date === todayStr);
-  const totalToday = todayList.reduce((acc, curr) => acc + curr.amount, 0);
-
-  document.getElementById('today-earned-display').textContent = `+${formatMoney(totalToday)} ₽`;
-
-  const logContainer = document.getElementById('today-incomes-log');
-  if (todayList.length === 0) {
-    logContainer.innerHTML = `<span style="font-size: 12px; color: var(--text-dim);">Сегодня начислений пока не было</span>`;
-  } else {
-    logContainer.innerHTML = todayList.slice(0, 3).map(i => `
-      <div class="mini-log-item">
-        <span>${escapeHtml(i.category)} ${i.description ? `(${escapeHtml(i.description)})` : ''}</span>
-        <span class="mini-log-amount">+${formatMoney(i.amount)} ₽</span>
-      </div>
-    `).join('');
-  }
-}
-
-// ================= 4. PINNED SMART NOTES =================
+// ================= 3. SMART NOTES (БАЗА ЗНАНИЙ) - ПОЛНЫЙ CRUD =================
 function initSmartNotes() {
-  const modal = document.getElementById('note-edit-modal');
-  const closeBtn = document.getElementById('btn-close-note-modal');
-  const saveBtn = document.getElementById('btn-save-note-modal');
+  const modal = document.getElementById('smart-note-modal');
+  const addBtn = document.getElementById('btn-add-smart-note');
+  const closeBtn = document.getElementById('btn-close-sn-modal');
+  const saveBtn = document.getElementById('btn-save-smart-note');
+  const deleteBtn = document.getElementById('btn-delete-smart-note');
+
+  addBtn.addEventListener('click', () => {
+    editingSmartNoteId = null;
+    document.getElementById('smart-note-modal-title').textContent = 'Новая карточка базы';
+    document.getElementById('sn-modal-icon').value = '📌';
+    document.getElementById('sn-modal-color').value = 'badge-blue';
+    document.getElementById('sn-modal-title').value = '';
+    document.getElementById('sn-modal-badge').value = '';
+    document.getElementById('sn-modal-content').value = '';
+    deleteBtn.style.display = 'none';
+    modal.classList.add('active');
+  });
 
   closeBtn.addEventListener('click', () => modal.classList.remove('active'));
 
   saveBtn.addEventListener('click', () => {
-    if (!activeEditingNoteId) return;
-    const text = document.getElementById('note-modal-textarea').value;
+    const icon = document.getElementById('sn-modal-icon').value.trim() || '📌';
+    const color = document.getElementById('sn-modal-color').value;
+    const title = document.getElementById('sn-modal-title').value.trim();
+    const badge = document.getElementById('sn-modal-badge').value.trim();
+    const content = document.getElementById('sn-modal-content').value;
+
+    if (!title) {
+      alert('Укажите заголовок карточки');
+      return;
+    }
+
     const notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
-    const item = notes.find(n => n.id === activeEditingNoteId);
-    if (item) {
-      item.content = text;
+    if (editingSmartNoteId) {
+      const item = notes.find(n => n.id === editingSmartNoteId);
+      if (item) {
+        item.icon = icon;
+        item.badgeClass = color;
+        item.title = title;
+        item.badge = badge;
+        item.content = content;
+      }
+    } else {
+      notes.push({
+        id: 'sn_' + Date.now(),
+        icon: icon,
+        badgeClass: color,
+        title: title,
+        badge: badge,
+        content: content
+      });
+    }
+
+    saveStored(STORAGE_KEYS.SMART_NOTES, notes);
+    modal.classList.remove('active');
+    renderSmartNotes();
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    if (!editingSmartNoteId) return;
+    if (confirm('Точно удалить эту карточку из базы?')) {
+      let notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
+      notes = notes.filter(n => n.id !== editingSmartNoteId);
       saveStored(STORAGE_KEYS.SMART_NOTES, notes);
+      modal.classList.remove('active');
       renderSmartNotes();
     }
-    modal.classList.remove('active');
   });
 }
 
 function openEditSmartNote(id) {
-  activeEditingNoteId = id;
+  editingSmartNoteId = id;
+  const modal = document.getElementById('smart-note-modal');
+  const deleteBtn = document.getElementById('btn-delete-smart-note');
   const notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
   const item = notes.find(n => n.id === id);
   if (!item) return;
 
-  document.getElementById('note-modal-title').textContent = item.title;
-  document.getElementById('note-modal-textarea').value = item.content;
-  document.getElementById('note-edit-modal').classList.add('active');
+  document.getElementById('smart-note-modal-title').textContent = 'Редактировать карточку';
+  document.getElementById('sn-modal-icon').value = item.icon || '📌';
+  document.getElementById('sn-modal-color').value = item.badgeClass || 'badge-blue';
+  document.getElementById('sn-modal-title').value = item.title;
+  document.getElementById('sn-modal-badge').value = item.badge || '';
+  document.getElementById('sn-modal-content').value = item.content || '';
+  deleteBtn.style.display = 'block';
+  modal.classList.add('active');
 }
 
 function renderSmartNotes() {
@@ -628,13 +625,13 @@ function renderSmartNotes() {
           <span class="smart-card-icon">${n.icon}</span>
           <span class="smart-card-title">${escapeHtml(n.title)}</span>
         </div>
-        <span class="smart-card-badge ${n.badgeClass || ''}">${escapeHtml(n.badge)}</span>
+        ${n.badge ? `<span class="smart-card-badge ${n.badgeClass || 'badge-blue'}">${escapeHtml(n.badge)}</span>` : ''}
       </div>
       <div class="smart-card-body">
         ${formatMarkdownText(n.content)}
       </div>
       <div class="smart-card-actions">
-        <button class="btn-card-edit" onclick="openEditSmartNote('${n.id}')">✏️ Редактировать</button>
+        <button class="btn-card-edit" onclick="openEditSmartNote('${n.id}')">✏️ Настроить / Изменить</button>
       </div>
     </div>
   `).join('');
@@ -647,10 +644,11 @@ function formatMarkdownText(text) {
   formatted = formatted.replace(/---/g, '<hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:8px 0;">');
   formatted = formatted.replace(/• (.*)/g, '<div style="display:flex; gap:6px; margin-bottom:3px;"><span style="color:var(--accent-orange);">•</span><span>$1</span></div>');
   formatted = formatted.replace(/  - (.*)/g, '<div style="display:flex; gap:6px; margin-left:14px; margin-bottom:2px;"><span style="color:var(--text-muted);">-</span><span>$1</span></div>');
-  return formatted.replace(/\n/g, '<br>');
+  return formatted.replace(/
+/g, '<br>');
 }
 
-// ================= 5. QUICK NOTES =================
+// ================= 4. QUICK NOTES =================
 function initNotes() {
   const noteInput = document.getElementById('note-input');
   const saveBtn = document.getElementById('btn-save-note');
@@ -684,7 +682,7 @@ function renderNotes() {
   const notes = getStored(STORAGE_KEYS.NOTES, []);
 
   if (notes.length === 0) {
-    container.innerHTML = `<div class="empty-state">Нет мыслей. Запишите идею дня выше ✍️</div>`;
+    container.innerHTML = `<div class="empty-state">Нет мыслей. Запишите инсайт дня выше ✍️</div>`;
     return;
   }
 
@@ -697,11 +695,84 @@ function renderNotes() {
   `).join('');
 }
 
-// ================= 6. ТЕМКИ (SCHEMES & HUSTLE) =================
+// ================= 5. INCOMES SCREEN & INPUT =================
+function initIncomes() {
+  const amountInput = document.getElementById('income-amount');
+  const catInput = document.getElementById('income-category');
+  const dateInput = document.getElementById('income-date');
+  const descInput = document.getElementById('income-desc');
+  const saveBtn = document.getElementById('btn-save-income');
+
+  saveBtn.addEventListener('click', () => {
+    const amount = parseFloat(amountInput.value);
+    const dateVal = dateInput.value || getIsoDateString(new Date());
+
+    if (!amount || amount <= 0) {
+      alert('Укажите корректную сумму дохода');
+      return;
+    }
+
+    const incomes = getStored(STORAGE_KEYS.INCOMES, []);
+    const newEntry = {
+      id: 'inc_' + Date.now(),
+      amount: amount,
+      category: catInput.value,
+      description: descInput.value.trim(),
+      date: dateVal,
+      timestamp: Date.now()
+    };
+    incomes.unshift(newEntry);
+    saveStored(STORAGE_KEYS.INCOMES, incomes);
+
+    amountInput.value = '';
+    descInput.value = '';
+    renderIncomesScreen();
+    renderAnalytics();
+  });
+}
+
+function deleteIncomeEntry(id) {
+  let incomes = getStored(STORAGE_KEYS.INCOMES, []);
+  incomes = incomes.filter(i => i.id !== id);
+  saveStored(STORAGE_KEYS.INCOMES, incomes);
+  renderIncomesScreen();
+  renderAnalytics();
+}
+
+function renderIncomesScreen() {
+  const incomes = getStored(STORAGE_KEYS.INCOMES, []);
+  const todayStr = getIsoDateString(new Date());
+  
+  const todayTotal = incomes.filter(i => i.date === todayStr).reduce((s, i) => s + i.amount, 0);
+  document.getElementById('today-earned-display').textContent = `+${formatMoney(todayTotal)} ₽`;
+
+  // Sort chronological by date descending
+  const sorted = [...incomes].sort((a, b) => b.date.localeCompare(a.date));
+
+  const listContainer = document.getElementById('income-recent-list');
+  if (sorted.length === 0) {
+    listContainer.innerHTML = `<div class="empty-state">Нет записей о доходах. Добавьте сумму выше 💰</div>`;
+    return;
+  }
+
+  listContainer.innerHTML = sorted.slice(0, 30).map(i => `
+    <div class="history-item">
+      <div>
+        <div style="font-weight:600; font-size:14.5px;">${escapeHtml(i.category)}</div>
+        <div style="font-size:12px; color:var(--text-muted);">${i.date} ${i.description ? `• ${escapeHtml(i.description)}` : ''}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="text-green font-bold" style="font-size:16px;">+${formatMoney(i.amount)} ₽</span>
+        <button class="task-del-btn" onclick="deleteIncomeEntry('${i.id}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ================= 6. ТЕМКИ (FULL CRUD & NO FIXED TAGS) =================
 function initSchemes() {
   const titleInput = document.getElementById('scheme-title');
   const potentialInput = document.getElementById('scheme-potential');
-  const tagInput = document.getElementById('scheme-tag');
   const notesInput = document.getElementById('scheme-notes');
   const addBtn = document.getElementById('btn-add-scheme');
 
@@ -711,7 +782,7 @@ function initSchemes() {
     const notes = notesInput.value.trim();
 
     if (!title) {
-      alert('Напишите название темки');
+      alert('Укажите название темки');
       return;
     }
 
@@ -720,7 +791,6 @@ function initSchemes() {
       id: 'sch_' + Date.now(),
       title: title,
       potential: potential || 'Не указан',
-      tag: tagInput.value,
       status: 'idea', // 'idea' | 'in_progress' | 'launched'
       notes: notes
     });
@@ -742,6 +812,64 @@ function initSchemes() {
       renderSchemes();
     });
   });
+
+  // Scheme Modal Edit
+  const modal = document.getElementById('scheme-modal');
+  const closeBtn = document.getElementById('btn-close-scheme-modal');
+  const saveBtn = document.getElementById('btn-save-scheme-modal');
+  const delBtn = document.getElementById('btn-delete-scheme-modal');
+
+  closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+
+  saveBtn.addEventListener('click', () => {
+    if (!editingSchemeId) return;
+    const title = document.getElementById('modal-scheme-title').value.trim();
+    const potential = document.getElementById('modal-scheme-potential').value.trim();
+    const status = document.getElementById('modal-scheme-status').value;
+    const notes = document.getElementById('modal-scheme-notes').value.trim();
+
+    if (!title) {
+      alert('Укажите название темки');
+      return;
+    }
+
+    const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+    const item = list.find(s => s.id === editingSchemeId);
+    if (item) {
+      item.title = title;
+      item.potential = potential;
+      item.status = status;
+      item.notes = notes;
+      saveStored(STORAGE_KEYS.SCHEMES, list);
+      renderSchemes();
+    }
+    modal.classList.remove('active');
+  });
+
+  delBtn.addEventListener('click', () => {
+    if (!editingSchemeId) return;
+    if (confirm('Удалить эту темку?')) {
+      let list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+      list = list.filter(s => s.id !== editingSchemeId);
+      saveStored(STORAGE_KEYS.SCHEMES, list);
+      modal.classList.remove('active');
+      renderSchemes();
+    }
+  });
+}
+
+function openEditSchemeModal(id) {
+  editingSchemeId = id;
+  const modal = document.getElementById('scheme-modal');
+  const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+  const item = list.find(s => s.id === id);
+  if (!item) return;
+
+  document.getElementById('modal-scheme-title').value = item.title;
+  document.getElementById('modal-scheme-potential').value = item.potential || '';
+  document.getElementById('modal-scheme-status').value = item.status || 'idea';
+  document.getElementById('modal-scheme-notes').value = item.notes || '';
+  modal.classList.add('active');
 }
 
 function cycleSchemeStatus(id) {
@@ -757,13 +885,6 @@ function cycleSchemeStatus(id) {
   }
 }
 
-function deleteScheme(id) {
-  let list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
-  list = list.filter(s => s.id !== id);
-  saveStored(STORAGE_KEYS.SCHEMES, list);
-  renderSchemes();
-}
-
 function renderSchemes() {
   const container = document.getElementById('schemes-items-list');
   const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
@@ -776,7 +897,7 @@ function renderSchemes() {
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state">В этом статусе нет темок. Добавьте новую идею выше 💡</div>`;
+    container.innerHTML = `<div class="empty-state">Темки не найдены. Запишите новую идею выше 💡</div>`;
     return;
   }
 
@@ -792,24 +913,19 @@ function renderSchemes() {
       <div class="scheme-card">
         <div class="scheme-header-row">
           <span class="scheme-title-text">${escapeHtml(s.title)}</span>
-          <span class="scheme-status-pill ${st.class}" onclick="cycleSchemeStatus('${s.id}')" title="Нажмите для смены статуса">${st.label}</span>
+          <span class="scheme-status-pill ${st.class}" onclick="cycleSchemeStatus('${s.id}')" title="Нажмите для быстрой смены статуса">${st.label}</span>
         </div>
         ${s.notes ? `<div class="scheme-details">${escapeHtml(s.notes)}</div>` : ''}
         <div class="scheme-footer-row">
-          <div class="scheme-meta-wrap">
-            <span class="wish-tag-badge">${escapeHtml(s.tag)}</span>
-            <span class="scheme-potential-tag">💰 ${escapeHtml(s.potential)}</span>
-          </div>
-          <button class="task-del-btn" onclick="deleteScheme('${s.id}')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-          </button>
+          <span class="scheme-potential-tag">💰 Потенциал: ${escapeHtml(s.potential)}</span>
+          <button class="btn-card-edit" onclick="openEditSchemeModal('${s.id}')">✏️ Настроить</button>
         </div>
       </div>
     `;
   }).join('');
 }
 
-// ================= 7. WISHLIST TAB =================
+// ================= 7. WISHLIST (FIXED FILTER LOGIC) =================
 function initWishlist() {
   const titleInput = document.getElementById('wish-title');
   const priceInput = document.getElementById('wish-price');
@@ -821,7 +937,7 @@ function initWishlist() {
     const price = parseFloat(priceInput.value) || 0;
 
     if (!title) {
-      alert('Напишите название хотелки');
+      alert('Укажите название хотелки');
       return;
     }
 
@@ -840,6 +956,7 @@ function initWishlist() {
     renderWishlist();
   });
 
+  // Filter Pills (BUG FIX: Strict matching)
   const filterBtns = document.querySelectorAll('#wish-filter-pills .week-pill');
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -872,18 +989,21 @@ function renderWishlist() {
   const container = document.getElementById('wishlist-items-list');
   const list = getStored(STORAGE_KEYS.WISHLIST, DEFAULT_WISHLIST);
 
+  // Total active sum of unbought items
   const activeSum = list.filter(w => !w.bought).reduce((acc, curr) => acc + (curr.price || 0), 0);
-  document.getElementById('wish-total-sum').textContent = `Всего: ${formatMoney(activeSum)} ₽`;
+  document.getElementById('wish-total-sum').textContent = `Осталось: ${formatMoney(activeSum)} ₽`;
 
+  // Strict Filter
   let filtered = list;
   if (currentWishFilter === 'active') {
-    filtered = list.filter(w => !w.bought);
+    filtered = list.filter(w => w.bought === false);
   } else if (currentWishFilter === 'done') {
-    filtered = list.filter(w => !w.bought);
+    filtered = list.filter(w => w.bought === true);
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state">Список пуст. Добавьте свою первую цель-мотиватор выше 🔥</div>`;
+    const msg = currentWishFilter === 'done' ? 'Нет исполненных целей' : 'Список пуст';
+    container.innerHTML = `<div class="empty-state">${msg}</div>`;
     return;
   }
 
@@ -895,9 +1015,9 @@ function renderWishlist() {
       <div class="wish-info">
         <div class="wish-title-text">${escapeHtml(w.title)}</div>
         <div class="wish-meta-row">
-          <span class="wish-tag-badge">${escapeHtml(w.tag || '🎯 Цель')}</span>
+          <span class="wish-tag-badge">${escapeHtml(w.tag || '🎯')}</span>
           ${w.price > 0 ? `<span class="wish-price-badge">${formatMoney(w.price)} ₽</span>` : ''}
-          ${w.bought ? '<span style="color:var(--accent-green); font-weight:600;">Куплено! 🎉</span>' : ''}
+          ${w.bought ? '<span style="color:var(--accent-green); font-weight:700;">Куплено! 🎉</span>' : ''}
         </div>
       </div>
       <button class="task-del-btn" onclick="deleteWish('${w.id}')">
@@ -907,119 +1027,106 @@ function renderWishlist() {
   `).join('');
 }
 
-// ================= 8. MONTHLY EXPENSES =================
-function initExpenses() {
-  const modal = document.getElementById('expense-modal');
-  const openBtn = document.getElementById('btn-open-expense-modal');
-  const closeBtn = document.getElementById('btn-close-modal');
-  const saveBtn = document.getElementById('btn-save-monthly-expense');
+// ================= 8. DELTA ANALYTICS & FIXED EXPENSES =================
+function initDeltaAnalytics() {
+  // Monthly total expense input (e.g. 85000)
+  const expenseInput = document.getElementById('monthly-total-expense-input');
+  const saveExpenseBtn = document.getElementById('btn-save-monthly-total-expense');
+
+  saveExpenseBtn.addEventListener('click', () => {
+    const val = parseFloat(expenseInput.value) || 0;
+    const totals = getStored(STORAGE_KEYS.MONTHLY_EXPENSE_TOTAL, {});
+    totals[currentAnalyticsMonth] = val;
+    saveStored(STORAGE_KEYS.MONTHLY_EXPENSE_TOTAL, totals);
+    renderAnalytics();
+    saveExpenseBtn.textContent = 'Сохранено!';
+    setTimeout(() => { saveExpenseBtn.textContent = 'Зафиксировать'; }, 1200);
+  });
+
+  // Fixed Expense Modal
+  const modal = document.getElementById('fixed-expense-modal');
+  const openBtn = document.getElementById('btn-open-fixed-expense-modal');
+  const closeBtn = document.getElementById('btn-close-fixed-modal');
+  const saveFixedBtn = document.getElementById('btn-save-fixed-expense');
 
   openBtn.addEventListener('click', () => modal.classList.add('active'));
   closeBtn.addEventListener('click', () => modal.classList.remove('active'));
 
-  saveBtn.addEventListener('click', () => {
-    const cat = document.getElementById('modal-expense-cat').value.trim();
-    const amount = parseFloat(document.getElementById('modal-expense-amount').value);
+  saveFixedBtn.addEventListener('click', () => {
+    const name = document.getElementById('fixed-exp-name').value.trim();
+    const amount = parseFloat(document.getElementById('fixed-exp-amount').value);
 
-    if (!cat || !amount || amount <= 0) {
-      alert('Укажите категорию и сумму расхода');
+    if (!name || !amount || amount <= 0) {
+      alert('Укажите название и сумму фиксы');
       return;
     }
 
-    const expenses = getStored(STORAGE_KEYS.EXPENSES, []);
-    const existingIndex = expenses.findIndex(e => e.month === currentAnalyticsMonth && e.category.toLowerCase() === cat.toLowerCase());
-    if (existingIndex > -1) {
-      expenses[existingIndex].amount = amount;
-    } else {
-      expenses.push({
-        id: 'exp_' + Date.now(),
-        month: currentAnalyticsMonth,
-        category: cat,
-        amount: amount
-      });
-    }
+    const fixedList = getStored(STORAGE_KEYS.FIXED_EXPENSES, DEFAULT_FIXED_EXPENSES);
+    fixedList.push({
+      id: 'fix_' + Date.now(),
+      name: name,
+      amount: amount
+    });
+    saveStored(STORAGE_KEYS.FIXED_EXPENSES, fixedList);
 
-    saveStored(STORAGE_KEYS.EXPENSES, expenses);
     modal.classList.remove('active');
-    document.getElementById('modal-expense-cat').value = '';
-    document.getElementById('modal-expense-amount').value = '';
+    document.getElementById('fixed-exp-name').value = '';
+    document.getElementById('fixed-exp-amount').value = '';
     renderAnalytics();
   });
 }
 
-function deleteExpense(id) {
-  let expenses = getStored(STORAGE_KEYS.EXPENSES, []);
-  expenses = expenses.filter(e => e.id !== id);
-  saveStored(STORAGE_KEYS.EXPENSES, expenses);
+function deleteFixedExpense(id) {
+  let list = getStored(STORAGE_KEYS.FIXED_EXPENSES, DEFAULT_FIXED_EXPENSES);
+  list = list.filter(f => f.id !== id);
+  saveStored(STORAGE_KEYS.FIXED_EXPENSES, list);
   renderAnalytics();
 }
 
-function deleteIncomeFromHistory(id) {
-  let incomes = getStored(STORAGE_KEYS.INCOMES, []);
-  incomes = incomes.filter(i => i.id !== id);
-  saveStored(STORAGE_KEYS.INCOMES, incomes);
-  renderAnalytics();
-  renderIncomeWidget();
-}
-
-// ================= ANALYTICS & ARCHIVE RENDERING =================
 function renderAnalytics() {
   const incomes = getStored(STORAGE_KEYS.INCOMES, []);
-  const expenses = getStored(STORAGE_KEYS.EXPENSES, []);
-  const todayStr = getIsoDateString(new Date());
+  const monthlyExpenseTotals = getStored(STORAGE_KEYS.MONTHLY_EXPENSE_TOTAL, {});
+  const fixedExpenses = getStored(STORAGE_KEYS.FIXED_EXPENSES, DEFAULT_FIXED_EXPENSES);
 
-  // 1. Day stats
-  const todayIncomes = incomes.filter(i => i.date === todayStr);
-  const totalToday = todayIncomes.reduce((s, i) => s + i.amount, 0);
-
-  const dayValEl = document.getElementById('stat-income-day');
-  const daySubEl = document.getElementById('stat-income-day-sub');
-  if (totalToday > 0) {
-    dayValEl.textContent = `+${formatMoney(totalToday)} ₽`;
-    daySubEl.textContent = `${todayIncomes.length} начислений за сегодня`;
-  } else {
-    dayValEl.textContent = `0 ₽`;
-    daySubEl.textContent = `Прибыли в этот день не было`;
-  }
-
-  // 2. Week stats
-  const now = new Date();
-  const dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - dayOfWeek);
-  const startOfWeekStr = getIsoDateString(startOfWeek);
-
-  const weekIncomes = incomes.filter(i => i.date >= startOfWeekStr && i.date <= todayStr);
-  const totalWeek = weekIncomes.reduce((s, i) => s + i.amount, 0);
-
-  const weekValEl = document.getElementById('stat-income-week');
-  const weekSubEl = document.getElementById('stat-income-week-sub');
-  if (totalWeek > 0) {
-    weekValEl.textContent = `+${formatMoney(totalWeek)} ₽`;
-    weekSubEl.textContent = `${weekIncomes.length} начислений на этой неделе`;
-  } else {
-    weekValEl.textContent = `0 ₽`;
-    weekSubEl.textContent = `Прибыли на этой неделе не было`;
-  }
-
-  // 3. Month Stats
+  // Month Incomes
   const monthIncomes = incomes.filter(i => i.date.startsWith(currentAnalyticsMonth));
   const totalMonthIncome = monthIncomes.reduce((s, i) => s + i.amount, 0);
 
-  const monthExpenses = expenses.filter(e => e.month === currentAnalyticsMonth);
-  const totalMonthExpense = monthExpenses.reduce((s, e) => s + e.amount, 0);
+  // Month Expenses (from user single input)
+  const totalMonthExpense = monthlyExpenseTotals[currentAnalyticsMonth] || 0;
+  document.getElementById('monthly-total-expense-input').value = totalMonthExpense > 0 ? totalMonthExpense : '';
 
-  const netBalance = totalMonthIncome - totalMonthExpense;
+  // Delta
+  const netDelta = totalMonthIncome - totalMonthExpense;
 
   document.getElementById('stat-income-month').textContent = `+${formatMoney(totalMonthIncome)} ₽`;
   document.getElementById('stat-expense-month').textContent = `-${formatMoney(totalMonthExpense)} ₽`;
   document.getElementById('month-income-total-badge').textContent = `+${formatMoney(totalMonthIncome)} ₽`;
-  
-  const netEl = document.getElementById('stat-net-month');
-  netEl.textContent = `${netBalance >= 0 ? '+' : ''}${formatMoney(netBalance)} ₽`;
-  netEl.className = 'stat-value ' + (netBalance >= 0 ? 'text-green' : 'text-red');
 
-  // Breakdown by Category
+  const deltaEl = document.getElementById('stat-net-month');
+  deltaEl.textContent = `${netDelta >= 0 ? '+' : ''}${formatMoney(netDelta)} ₽`;
+  deltaEl.className = 'stat-value font-bold ' + (netDelta >= 0 ? 'text-green' : 'text-red');
+
+  // Fixed Expenses rendering
+  const totalFixed = fixedExpenses.reduce((s, f) => s + f.amount, 0);
+  document.getElementById('fixed-expenses-total-sum').textContent = `${formatMoney(totalFixed)} ₽ / мес`;
+
+  const fixedContainer = document.getElementById('fixed-expenses-list');
+  if (fixedExpenses.length === 0) {
+    fixedContainer.innerHTML = `<div class="empty-state">Обязательные фиксы не добавлены</div>`;
+  } else {
+    fixedContainer.innerHTML = fixedExpenses.map(f => `
+      <div class="breakdown-row">
+        <span>${escapeHtml(f.name)}</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="text-red" style="font-weight:600;">-${formatMoney(f.amount)} ₽</span>
+          <button class="task-del-btn" onclick="deleteFixedExpense('${f.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Income Breakdown by Category
   const catMap = {};
   monthIncomes.forEach(i => {
     catMap[i.category] = (catMap[i.category] || 0) + i.amount;
@@ -1028,46 +1135,31 @@ function renderAnalytics() {
   const catContainer = document.getElementById('income-breakdown-list');
   const catEntries = Object.entries(catMap);
   if (catEntries.length === 0) {
-    catContainer.innerHTML = `<div class="empty-state">В месяце ${currentAnalyticsMonth} доходов пока не зафиксировано</div>`;
+    catContainer.innerHTML = `<div class="empty-state">В месяце ${currentAnalyticsMonth} начислений нет</div>`;
   } else {
     catContainer.innerHTML = catEntries.map(([cat, sum]) => `
       <div class="breakdown-row">
         <span>${escapeHtml(cat)}</span>
-        <span class="text-green font-bold">+${formatMoney(sum)} ₽</span>
+        <span class="text-green" style="font-weight:700;">+${formatMoney(sum)} ₽</span>
       </div>
     `).join('');
   }
 
-  // Monthly Expenses List
-  const expContainer = document.getElementById('expenses-list');
-  if (monthExpenses.length === 0) {
-    expContainer.innerHTML = `<div class="empty-state">Сводка расходов за ${currentAnalyticsMonth} не добавлена. Нажмите «+ Добавить».</div>`;
-  } else {
-    expContainer.innerHTML = monthExpenses.map(e => `
-      <div class="breakdown-row">
-        <span>${escapeHtml(e.category)}</span>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="text-red font-bold">-${formatMoney(e.amount)} ₽</span>
-          <button class="task-del-btn" onclick="deleteExpense('${e.id}')">✕</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // Detailed History List
+  // Chronological History of Incomes for selected month (Sorted by date DESC)
+  const sortedMonthIncomes = [...monthIncomes].sort((a, b) => b.date.localeCompare(a.date));
   const historyContainer = document.getElementById('full-income-history');
-  if (monthIncomes.length === 0) {
+  if (sortedMonthIncomes.length === 0) {
     historyContainer.innerHTML = `<div class="empty-state">История начислений за этот месяц пуста</div>`;
   } else {
-    historyContainer.innerHTML = monthIncomes.map(i => `
+    historyContainer.innerHTML = sortedMonthIncomes.map(i => `
       <div class="history-item">
         <div>
           <div style="font-weight:600; font-size:14px;">${escapeHtml(i.category)}</div>
           <div style="font-size:12px; color:var(--text-muted);">${i.date} ${i.description ? `• ${escapeHtml(i.description)}` : ''}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
-          <div class="text-green font-bold">+${formatMoney(i.amount)} ₽</div>
-          <button class="task-del-btn" onclick="deleteIncomeFromHistory('${i.id}')">✕</button>
+          <div class="text-green" style="font-weight:700;">+${formatMoney(i.amount)} ₽</div>
+          <button class="task-del-btn" onclick="deleteIncomeEntry('${i.id}')">✕</button>
         </div>
       </div>
     `).join('');
@@ -1113,14 +1205,14 @@ function renderArchive() {
 
 function renderAll() {
   renderDayTasks();
-  renderIncomeWidget();
   renderSmartNotes();
   renderNotes();
+  renderIncomesScreen();
   renderSchemes();
   renderWishlist();
+  renderAnalytics();
 }
 
-// Formatters
 function formatMoney(num) {
   return Number(num).toLocaleString('ru-RU');
 }
