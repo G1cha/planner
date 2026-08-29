@@ -102,7 +102,7 @@ body {
 }
 
 .glass-card-glow-green {
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.25);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 20px rgba(34, 197, 94, 0.12), inset 0 1px 0 rgba(34, 197, 94, 0.25);
 }
 
@@ -168,13 +168,6 @@ body {
   font-weight: 600;
   letter-spacing: -0.3px;
 }
-.subsection-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-  padding-left: 4px;
-}
 .indicator-dot {
   width: 8px;
   height: 8px;
@@ -187,7 +180,7 @@ body {
 
 /* Segmented Period Selector */
 .segmented-control {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.35);
   padding: 3px;
   border-radius: 12px;
   display: flex;
@@ -200,13 +193,13 @@ body {
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
-  padding: 5px 10px;
+  padding: 5px 12px;
   border-radius: 9px;
   cursor: pointer;
   transition: all 0.2s;
 }
 .seg-btn.active {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
@@ -248,7 +241,7 @@ input::placeholder, textarea::placeholder {
   transform: scale(0.9);
 }
 
-/* Task List Items with custom Orange/Yellow planned, Green completed checkboxes */
+/* Task List Items */
 .items-list {
   display: flex;
   flex-direction: column;
@@ -321,6 +314,94 @@ input::placeholder, textarea::placeholder {
   color: var(--accent-red);
 }
 
+/* 12-WEEKS GOALS STYLES */
+.goal-card {
+  margin-bottom: 12px;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.goal-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.btn-text-action {
+  background: none;
+  border: none;
+  color: var(--accent-orange);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.weeks-carousel-wrapper {
+  overflow-x: auto;
+  margin-bottom: 12px;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.weeks-carousel-wrapper::-webkit-scrollbar {
+  display: none;
+}
+.weeks-carousel {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+}
+.week-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 12px;
+  padding: 8px 14px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.week-pill.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--accent-orange);
+  color: #fff;
+  box-shadow: 0 0 12px var(--accent-orange-glow);
+}
+.week-actions-card {
+  padding: 14px;
+}
+.week-actions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.week-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.week-counter {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.input-row-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
 /* Income Widget (Between Tasks and Notes) */
 .income-widget {
   padding: 16px;
@@ -349,7 +430,6 @@ input::placeholder, textarea::placeholder {
   margin-bottom: 10px;
 }
 .input-with-currency {
-  position: relative;
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid var(--bg-card-border);
   border-radius: var(--radius-sm);
@@ -371,13 +451,23 @@ input::placeholder, textarea::placeholder {
   appearance: none;
   -webkit-appearance: none;
 }
-.income-form-footer {
-  display: flex;
-  flex-direction: column;
+.income-secondary-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
   gap: 10px;
+  margin-bottom: 10px;
+}
+.glass-date-input-full {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
 }
 .sub-input {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.25);
   border: 1px solid var(--bg-card-border);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
@@ -391,7 +481,7 @@ input::placeholder, textarea::placeholder {
   border-radius: var(--radius-sm);
   cursor: pointer;
   box-shadow: 0 4px 14px var(--accent-green-glow);
-  transition: transform 0.15s;
+  width: 100%;
 }
 .btn-green-glow:active {
   transform: scale(0.98);
@@ -500,7 +590,7 @@ input::placeholder, textarea::placeholder {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 .stat-card {
   padding: 14px;
@@ -530,6 +620,35 @@ input::placeholder, textarea::placeholder {
 }
 .text-green { color: var(--accent-green); text-shadow: 0 0 10px var(--accent-green-glow); }
 .text-red { color: var(--accent-red); text-shadow: 0 0 10px var(--accent-red-glow); }
+.font-bold { font-weight: 700; }
+
+.month-bar {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+.month-picker-row-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.month-bar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.glass-date-input {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--bg-card-border);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.badge-total {
+  font-size: 14px;
+  font-weight: 700;
+}
 
 .breakdown-list {
   display: flex;
@@ -548,25 +667,9 @@ input::placeholder, textarea::placeholder {
 }
 .empty-state {
   text-align: center;
-  padding: 20px 10px;
+  padding: 18px 10px;
   color: var(--text-muted);
   font-size: 13.5px;
-}
-
-.month-picker-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-.glass-date-input {
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--bg-card-border);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 6px;
 }
 
 /* History Logs */
@@ -628,7 +731,7 @@ input::placeholder, textarea::placeholder {
   align-items: center;
   border-radius: 24px 24px 0 0;
   border-bottom: none;
-  background: rgba(13, 17, 23, 0.85);
+  background: rgba(13, 17, 23, 0.88);
   z-index: 100;
 }
 .tab-btn {
@@ -658,17 +761,11 @@ input::placeholder, textarea::placeholder {
 }
 .tab-content.active {
   display: block;
-  animation: fadeIn 0.25s ease;
-}
-.subtab-pane {
-  display: none;
-}
-.subtab-pane.active {
-  display: block;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -676,7 +773,7 @@ input::placeholder, textarea::placeholder {
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(8px);
   display: none;
   align-items: center;

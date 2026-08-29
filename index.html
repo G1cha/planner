@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ежедневник">
-  <meta name="theme-color" content="#0d1117">
+  <meta name="theme-color" content="#0a0d13">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   
@@ -43,49 +43,87 @@
         </div>
       </header>
 
-      <!-- 1. БЛОК ЗАДАЧ -->
+      <!-- 1. БЛОК ЗАДАЧ (ДЕНЬ / 12 НЕДЕЛЬ) -->
       <section class="section-container">
         <div class="section-header">
           <div class="section-title-wrap">
             <span class="indicator-dot dot-amber"></span>
             <h2 class="section-title">Списки дел</h2>
           </div>
-          <!-- Period Selector: День / Неделя / 12 Недель -->
+          <!-- Period Selector: День / 12 Недель -->
           <div class="segmented-control">
             <button class="seg-btn active" data-period="day">День</button>
-            <button class="seg-btn" data-period="week">Неделя</button>
             <button class="seg-btn" data-period="12weeks">12 Недель</button>
           </div>
         </div>
 
-        <!-- Task Input -->
-        <div class="glass-card input-row">
-          <input type="text" id="task-input" placeholder="Новая задача (например: Закончить заказ до 18:00)..." autocomplete="off">
-          <button class="action-btn" id="btn-add-task">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          </button>
+        <!-- Режим 1: Обычный список на день -->
+        <div id="day-tasks-container">
+          <div class="glass-card input-row">
+            <input type="text" id="task-input" placeholder="Новая задача на день..." autocomplete="off">
+            <button class="action-btn" id="btn-add-task">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+
+          <div id="tasks-list" class="items-list">
+            <!-- Rendered dynamically -->
+          </div>
         </div>
 
-        <!-- Task List -->
-        <div id="tasks-list" class="items-list">
-          <!-- Rendered dynamically -->
+        <!-- Режим 2: Система планирования на 12 недель -->
+        <div id="twelve-weeks-container" style="display: none;">
+          <!-- Главная цель -->
+          <div class="glass-card goal-card">
+            <div class="goal-header">
+              <span class="goal-tag">🎯 Главная цель на 12 недель</span>
+              <button class="btn-text-action" id="btn-save-goal">Сохранить цель</button>
+            </div>
+            <textarea id="twelve-weeks-goal" placeholder="Какую глобальную цель нужно достичь за эти 12 недель? (например: запустить проект, заработать 300к ₽...)" rows="2"></textarea>
+          </div>
+
+          <!-- Выбор недели 1..12 -->
+          <div class="weeks-carousel-wrapper">
+            <div class="weeks-carousel" id="weeks-pills">
+              <!-- Rendered dynamically (Неделя 1 .. 12) -->
+            </div>
+          </div>
+
+          <!-- Контейнер задач выбранной недели -->
+          <div class="glass-card week-actions-card">
+            <div class="week-actions-header">
+              <h3 class="week-title" id="selected-week-title">Неделя 1: Шаги и задачи</h3>
+              <span class="week-counter" id="week-progress-badge">0/0</span>
+            </div>
+            
+            <div class="input-row-inner">
+              <input type="text" id="twelve-week-task-input" placeholder="Шаг / действие для этой недели..." autocomplete="off">
+              <button class="action-btn" id="btn-add-twelve-task">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+
+            <div id="twelve-weeks-tasks-list" class="items-list" style="margin-top: 10px;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- 2. БЛОК ДОХОДА ЗА СЕГОДНЯ (МЕЖДУ ДЕЛАМИ И ЗАМЕТКАМИ) -->
+      <!-- 2. БЛОК ДОХОДА (С ВЫБОРОМ ДАТЫ) -->
       <section class="section-container">
         <div class="glass-card glass-card-glow-green income-widget">
           <div class="income-widget-header">
             <div class="section-title-wrap">
               <span class="indicator-dot dot-green"></span>
-              <span class="income-widget-title">Сколько заработал сегодня?</span>
+              <span class="income-widget-title">Добавить доход</span>
             </div>
             <span class="today-earned-sum" id="today-earned-display">+0 ₽</span>
           </div>
 
           <div class="income-form-grid">
             <div class="input-with-currency">
-              <input type="number" id="income-amount" placeholder="0" inputmode="numeric">
+              <input type="number" id="income-amount" placeholder="Сумма" inputmode="numeric">
               <span class="currency-label">₽</span>
             </div>
             <select id="income-category" class="glass-select">
@@ -96,12 +134,14 @@
             </select>
           </div>
 
-          <div class="income-form-footer">
-            <input type="text" id="income-desc" class="sub-input" placeholder="Комментарий (опционально: верстка сайта, клиент...)">
-            <button class="btn-green-glow" id="btn-save-income">
-              Записать доход
-            </button>
+          <div class="income-secondary-row">
+            <input type="date" id="income-date" class="glass-date-input-full" title="Дата дохода">
+            <input type="text" id="income-desc" class="sub-input" placeholder="Комментарий (напр.: создание сайта, клиент...)">
           </div>
+
+          <button class="btn-green-glow" id="btn-save-income">
+            Записать доход
+          </button>
 
           <!-- Mini log of today's earnings -->
           <div id="today-incomes-log" class="mini-log"></div>
@@ -109,7 +149,7 @@
       </section>
 
       <!-- 3. БЛОК КОММЕНТАРИЕВ И ЗАМЕТОК -->
-      <section class="section-container" style="margin-bottom: 90px;">
+      <section class="section-container" style="margin-bottom: 95px;">
         <div class="section-header">
           <div class="section-title-wrap">
             <span class="indicator-dot dot-purple"></span>
@@ -143,7 +183,7 @@
       </header>
 
       <!-- Subtab 1: Финансовая аналитика -->
-      <div id="subtab-fin-analytics" class="subtab-pane active" style="margin-bottom: 90px;">
+      <div id="subtab-fin-analytics" class="subtab-pane active" style="margin-bottom: 95px;">
         
         <!-- Profit Summary Cards -->
         <div class="stats-grid">
@@ -175,40 +215,55 @@
           </div>
         </div>
 
-        <!-- Income Category Breakdown -->
-        <div class="section-container">
-          <h3 class="subsection-title">Структура доходов за месяц</h3>
-          <div class="glass-card" id="income-breakdown-card">
+        <!-- Filter Month for Analytics -->
+        <div class="glass-card month-bar">
+          <div class="month-picker-row-compact">
+            <span class="month-bar-title">Отчетный месяц:</span>
+            <input type="month" id="analytics-month-select" class="glass-date-input">
+          </div>
+        </div>
+
+        <!-- 1. СВОДКА ДОХОДОВ ЗА МЕСЯЦ -->
+        <section class="section-container" style="margin-top: 14px;">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <span class="indicator-dot dot-green"></span>
+              <h3 class="section-title">Сводка доходов за месяц</h3>
+            </div>
+            <span class="badge-total text-green" id="month-income-total-badge">+0 ₽</span>
+          </div>
+          <div class="glass-card">
             <div id="income-breakdown-list" class="breakdown-list">
               <!-- Rendered dynamically -->
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Monthly Expense Summary (Сводка из банка) -->
+        <!-- 2. СВОДКА РАСХОДОВ ЗА МЕСЯЦ (ИЗ БАНКА) -->
         <section class="section-container">
           <div class="section-header">
             <div class="section-title-wrap">
               <span class="indicator-dot dot-red"></span>
               <h3 class="section-title">Сводка расходов за месяц (из банка)</h3>
             </div>
-            <button class="btn-glass-sm" id="btn-open-expense-modal">+ Добавить категорию</button>
+            <button class="btn-glass-sm" id="btn-open-expense-modal">+ Добавить</button>
           </div>
 
           <div class="glass-card">
-            <div class="month-picker-row">
-              <label for="expense-month-select">Месяц сводки:</label>
-              <input type="month" id="expense-month-select" class="glass-date-input">
-            </div>
             <div id="expenses-list" class="breakdown-list">
               <!-- Rendered dynamically -->
             </div>
           </div>
         </section>
 
-        <!-- Income Log for selected period -->
+        <!-- 3. ДЕТАЛЬНАЯ ИСТОРИЯ ДОХОДОВ ЗА МЕСЯЦ -->
         <section class="section-container">
-          <h3 class="subsection-title">История начислений</h3>
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <span class="indicator-dot dot-purple"></span>
+              <h3 class="section-title">История всех начислений за месяц</h3>
+            </div>
+          </div>
           <div id="full-income-history" class="history-list">
             <!-- Rendered dynamically -->
           </div>
@@ -217,7 +272,7 @@
       </div>
 
       <!-- Subtab 2: Архив выполненных дел -->
-      <div id="subtab-tasks-archive" class="subtab-pane" style="margin-bottom: 90px;">
+      <div id="subtab-tasks-archive" class="subtab-pane" style="display: none; margin-bottom: 95px;">
         <div class="section-container">
           <div class="info-banner glass-card">
             <span class="info-icon">🌙</span>
