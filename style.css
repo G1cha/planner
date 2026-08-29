@@ -1,6 +1,6 @@
 /* ============================================================
    LIQUID GLASS & MINIMAL DARK THEME
-   Accents: Green (Income), Red (Expense), Orange/Yellow (Todo), Green (Done)
+   Accents: Green (Income), Red (Expense), Orange/Yellow (Todo/Temki), Purple (Wishlist)
    ============================================================ */
 
 :root {
@@ -21,6 +21,8 @@
   --accent-orange-glow: rgba(245, 158, 11, 0.25);
   --accent-purple: #a855f7;
   --accent-purple-glow: rgba(168, 85, 247, 0.25);
+  --accent-blue: #38bdf8;
+  --accent-blue-glow: rgba(56, 189, 248, 0.25);
 
   --glass-blur: blur(20px);
   --radius-lg: 20px;
@@ -49,7 +51,7 @@ body {
   line-height: 1.4;
 }
 
-/* Background Liquid Glow Orbs */
+/* Background Glowing Orbs */
 .glow-orb {
   position: fixed;
   border-radius: 50%;
@@ -178,7 +180,7 @@ body {
 .dot-purple { background-color: var(--accent-purple); box-shadow: 0 0 10px var(--accent-purple); }
 .dot-red { background-color: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
 
-/* Segmented Period Selector */
+/* Segmented Selector */
 .segmented-control {
   background: rgba(0, 0, 0, 0.35);
   padding: 3px;
@@ -264,7 +266,7 @@ input::placeholder, textarea::placeholder {
   border-color: rgba(34, 197, 94, 0.2);
 }
 
-/* Checkbox Style */
+/* Custom Checkbox */
 .custom-checkbox {
   width: 22px;
   height: 22px;
@@ -314,7 +316,7 @@ input::placeholder, textarea::placeholder {
   color: var(--accent-red);
 }
 
-/* 12-WEEKS GOALS STYLES */
+/* 12-WEEKS STYLES */
 .goal-card {
   margin-bottom: 12px;
   border: 1px solid rgba(168, 85, 247, 0.25);
@@ -402,7 +404,7 @@ input::placeholder, textarea::placeholder {
   padding: 6px 10px;
 }
 
-/* Income Widget (Between Tasks and Notes) */
+/* Income Widget */
 .income-widget {
   padding: 16px;
 }
@@ -506,7 +508,334 @@ input::placeholder, textarea::placeholder {
   font-weight: 600;
 }
 
-/* Notes & Comments Section */
+/* ================= PINNED KNOWLEDGE CARDS ================= */
+.pinned-notes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.smart-card {
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.smart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.smart-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.smart-card-icon {
+  font-size: 20px;
+}
+.smart-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.smart-card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+.smart-card-badge.badge-blue {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.smart-card-badge.badge-orange {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-orange);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.smart-card-badge.badge-green {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--accent-green);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.smart-card-body {
+  margin-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+.smart-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.btn-card-edit {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+}
+.btn-card-edit:hover {
+  color: #fff;
+}
+
+/* ================= TAB 2: ТЕМКИ (SCHEMES) ================= */
+.scheme-count-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-orange);
+  background: rgba(245, 158, 11, 0.12);
+  padding: 4px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.scheme-add-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.scheme-form-main input {
+  font-size: 15px;
+  font-weight: 600;
+}
+.scheme-form-meta {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 10px;
+}
+.scheme-form-desc textarea {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+.btn-amber-glow {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  color: #000;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-orange-glow);
+  transition: transform 0.15s;
+}
+.btn-amber-glow:active {
+  transform: scale(0.98);
+}
+
+.schemes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.scheme-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: all 0.25s ease;
+}
+.scheme-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+.scheme-title-text {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.scheme-status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+.status-idea {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-orange);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.status-in_progress {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.status-launched {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--accent-green);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.scheme-details {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  line-height: 1.4;
+  border-left: 2px solid rgba(245, 158, 11, 0.3);
+  padding-left: 8px;
+  margin-top: 2px;
+}
+.scheme-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+.scheme-meta-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.scheme-potential-tag {
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+/* ================= TAB 3: WISHLIST TAB ================= */
+.wish-total-counter {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-purple);
+  text-shadow: 0 0 10px var(--accent-purple-glow);
+  background: rgba(168, 85, 247, 0.12);
+  padding: 4px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+.wishlist-add-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wishlist-form-main input {
+  font-size: 15px;
+  font-weight: 500;
+  padding: 4px 0;
+}
+.wishlist-form-meta {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 10px;
+}
+.btn-purple-glow {
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-purple-glow);
+  transition: transform 0.15s;
+}
+.btn-purple-glow:active {
+  transform: scale(0.98);
+}
+.wishlist-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wish-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--bg-card-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.25s ease;
+}
+.wish-card.bought {
+  opacity: 0.6;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+.wish-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 2px solid var(--accent-purple);
+  background: rgba(168, 85, 247, 0.1);
+  box-shadow: 0 0 8px var(--accent-purple-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.wish-card.bought .wish-checkbox {
+  border-color: var(--accent-green);
+  background: var(--accent-green);
+  box-shadow: 0 0 10px var(--accent-green-glow);
+}
+.wish-checkbox svg {
+  display: none;
+  stroke: #fff;
+}
+.wish-card.bought .wish-checkbox svg {
+  display: block;
+}
+.wish-info {
+  flex: 1;
+}
+.wish-title-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.wish-card.bought .wish-title-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.wish-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.wish-price-badge {
+  font-weight: 700;
+  color: var(--accent-orange);
+}
+.wish-card.bought .wish-price-badge {
+  color: var(--accent-green);
+}
+.wish-tag-badge {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* Quick Notes Section */
 .note-input-card {
   padding: 12px 14px;
 }
@@ -644,7 +973,6 @@ input::placeholder, textarea::placeholder {
   border-radius: 8px;
   font-size: 13px;
 }
-
 .badge-total {
   font-size: 14px;
   font-weight: 700;
@@ -716,7 +1044,7 @@ input::placeholder, textarea::placeholder {
   border-color: rgba(168, 85, 247, 0.2);
 }
 
-/* ================= TABBAR ================= */
+/* ================= TABBAR (4 TABS) ================= */
 .bottom-tabbar {
   position: fixed;
   bottom: 0;
@@ -746,6 +1074,7 @@ input::placeholder, textarea::placeholder {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  flex: 1;
 }
 .tab-btn.active {
   color: var(--accent-orange);
@@ -786,7 +1115,7 @@ input::placeholder, textarea::placeholder {
 }
 .modal-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: 20px;
 }
 .modal-title {
@@ -807,11 +1136,13 @@ input::placeholder, textarea::placeholder {
   color: var(--text-muted);
   margin-bottom: 4px;
 }
-.modal-field input {
+.modal-field input, .modal-field textarea {
   background: rgba(0,0,0,0.3);
   border: 1px solid var(--bg-card-border);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
+  width: 100%;
+  color: #fff;
 }
 .modal-actions {
   display: flex;

@@ -30,7 +30,6 @@
     <!-- ================= TAB 1: ГЛАВНАЯ ================= -->
     <main id="tab-main" class="tab-content active">
       
-      <!-- Top Header -->
       <header class="app-header glass-card">
         <div class="header-content">
           <div>
@@ -50,7 +49,6 @@
             <span class="indicator-dot dot-amber"></span>
             <h2 class="section-title">Списки дел</h2>
           </div>
-          <!-- Period Selector: День / 12 Недель -->
           <div class="segmented-control">
             <button class="seg-btn active" data-period="day">День</button>
             <button class="seg-btn" data-period="12weeks">12 Недель</button>
@@ -66,30 +64,23 @@
             </button>
           </div>
 
-          <div id="tasks-list" class="items-list">
-            <!-- Rendered dynamically -->
-          </div>
+          <div id="tasks-list" class="items-list"></div>
         </div>
 
         <!-- Режим 2: Система планирования на 12 недель -->
         <div id="twelve-weeks-container" style="display: none;">
-          <!-- Главная цель -->
           <div class="glass-card goal-card">
             <div class="goal-header">
               <span class="goal-tag">🎯 Главная цель на 12 недель</span>
               <button class="btn-text-action" id="btn-save-goal">Сохранить цель</button>
             </div>
-            <textarea id="twelve-weeks-goal" placeholder="Какую глобальную цель нужно достичь за эти 12 недель? (например: запустить проект, заработать 300к ₽...)" rows="2"></textarea>
+            <textarea id="twelve-weeks-goal" placeholder="Какую глобальную цель нужно достичь за эти 12 недель?..." rows="2"></textarea>
           </div>
 
-          <!-- Выбор недели 1..12 -->
           <div class="weeks-carousel-wrapper">
-            <div class="weeks-carousel" id="weeks-pills">
-              <!-- Rendered dynamically (Неделя 1 .. 12) -->
-            </div>
+            <div class="weeks-carousel" id="weeks-pills"></div>
           </div>
 
-          <!-- Контейнер задач выбранной недели -->
           <div class="glass-card week-actions-card">
             <div class="week-actions-header">
               <h3 class="week-title" id="selected-week-title">Неделя 1: Шаги и задачи</h3>
@@ -103,14 +94,12 @@
               </button>
             </div>
 
-            <div id="twelve-weeks-tasks-list" class="items-list" style="margin-top: 10px;">
-              <!-- Rendered dynamically -->
-            </div>
+            <div id="twelve-weeks-tasks-list" class="items-list" style="margin-top: 10px;"></div>
           </div>
         </div>
       </section>
 
-      <!-- 2. БЛОК ДОХОДА (С ВЫБОРОМ ДАТЫ) -->
+      <!-- 2. БЛОК ДОХОДА -->
       <section class="section-container">
         <div class="glass-card glass-card-glow-green income-widget">
           <div class="income-widget-header">
@@ -130,48 +119,172 @@
               <option value="ЗП">💰 ЗП</option>
               <option value="Фриланс услуги">💻 Фриланс услуги</option>
               <option value="Перепродажа">📦 Перепродажа</option>
+              <option value="Темка / Бизнес">💡 Темка / Бизнес</option>
               <option value="Другое">✨ Другое</option>
             </select>
           </div>
 
           <div class="income-secondary-row">
             <input type="date" id="income-date" class="glass-date-input-full" title="Дата дохода">
-            <input type="text" id="income-desc" class="sub-input" placeholder="Комментарий (напр.: создание сайта, клиент...)">
+            <input type="text" id="income-desc" class="sub-input" placeholder="Комментарий (напр.: создание сайта...)">
           </div>
 
           <button class="btn-green-glow" id="btn-save-income">
             Записать доход
           </button>
 
-          <!-- Mini log of today's earnings -->
           <div id="today-incomes-log" class="mini-log"></div>
         </div>
       </section>
 
-      <!-- 3. БЛОК КОММЕНТАРИЕВ И ЗАМЕТОК -->
+      <!-- 3. БЛОК ЗАМЕТОК И БАЗЫ ЗНАНИЙ -->
       <section class="section-container" style="margin-bottom: 95px;">
         <div class="section-header">
           <div class="section-title-wrap">
             <span class="indicator-dot dot-purple"></span>
-            <h2 class="section-title">Мысли и идеи</h2>
+            <h2 class="section-title">Заметки & База</h2>
+          </div>
+          <div class="segmented-control">
+            <button class="seg-btn active" id="btn-notes-pinned" data-notes-tab="pinned">База</button>
+            <button class="seg-btn" id="btn-notes-quick" data-notes-tab="quick">Мысли</button>
           </div>
         </div>
 
-        <div class="glass-card note-input-card">
-          <textarea id="note-input" placeholder="Мысли, идеи, инсайты за день..." rows="2"></textarea>
-          <div class="note-actions">
-            <button class="btn-glass-sm" id="btn-save-note">Сохранить заметку</button>
-          </div>
+        <div id="notes-pinned-container">
+          <div class="pinned-notes-grid" id="pinned-notes-list"></div>
         </div>
 
-        <div id="notes-list" class="notes-list">
-          <!-- Rendered dynamically -->
+        <div id="notes-quick-container" style="display: none;">
+          <div class="glass-card note-input-card">
+            <textarea id="note-input" placeholder="Мысли, идеи, инсайты за день..." rows="2"></textarea>
+            <div class="note-actions">
+              <button class="btn-glass-sm" id="btn-save-note">Сохранить мысль</button>
+            </div>
+          </div>
+          <div id="notes-list" class="notes-list"></div>
         </div>
       </section>
 
     </main>
 
-    <!-- ================= TAB 2: АНАЛИТИКА ================= -->
+    <!-- ================= TAB 2: ТЕМКИ (ИДЕИ ЗАРАБОТКА & БИЗНЕС) ================= -->
+    <main id="tab-schemes" class="tab-content">
+      
+      <header class="app-header glass-card">
+        <div class="header-content">
+          <div>
+            <span class="date-badge" style="color: var(--accent-orange);">💡 Источники кэша & Идеи</span>
+            <h1 class="header-title">Темки</h1>
+          </div>
+          <span class="scheme-count-badge" id="schemes-total-count">0 тем</span>
+        </div>
+      </header>
+
+      <!-- Add New Scheme Form -->
+      <section class="section-container">
+        <div class="glass-card scheme-add-card">
+          <div class="scheme-form-main">
+            <input type="text" id="scheme-title" placeholder="Название темки (напр.: Купить электровелик и сдавать в аренду)..." autocomplete="off">
+          </div>
+
+          <div class="scheme-form-meta">
+            <div class="input-with-currency">
+              <input type="text" id="scheme-potential" placeholder="Потенциал (напр.: 30к/мес или 100к)" autocomplete="off">
+            </div>
+            <select id="scheme-tag" class="glass-select">
+              <option value="🚲 Аренда & Прокат">🚲 Аренда & Прокат</option>
+              <option value="💼 Работа & Удаленка">💼 Работа & Удаленка</option>
+              <option value="📦 Перепродажа & Товарка">📦 Перепродажа & Товарка</option>
+              <option value="🏢 Недвижка & Гаражи">🏢 Недвижка & Гаражи</option>
+              <option value="💻 IT & Боты / Сайты">💻 IT & Боты / Сайты</option>
+              <option value="⚡️ Разное">⚡️ Разное</option>
+            </select>
+          </div>
+
+          <div class="scheme-form-desc">
+            <textarea id="scheme-notes" placeholder="Шаги, затраты на старт, нюансы реализации..." rows="2"></textarea>
+          </div>
+
+          <button class="btn-amber-glow" id="btn-add-scheme">
+            + Записать темку
+          </button>
+        </div>
+      </section>
+
+      <!-- Filter Pills -->
+      <div class="weeks-carousel-wrapper">
+        <div class="weeks-carousel" id="scheme-filter-pills">
+          <button class="week-pill active" data-scheme-filter="all">Все темки</button>
+          <button class="week-pill" data-scheme-filter="idea">💡 В идеях</button>
+          <button class="week-pill" data-scheme-filter="in_progress">⚙️ В работе</button>
+          <button class="week-pill" data-scheme-filter="launched">🚀 Запущено</button>
+        </div>
+      </div>
+
+      <!-- Schemes List -->
+      <section class="section-container" style="margin-bottom: 95px;">
+        <div id="schemes-items-list" class="schemes-grid"></div>
+      </section>
+
+    </main>
+
+    <!-- ================= TAB 3: ХОТЕЛКИ & МОТИВАЦИЯ ================= -->
+    <main id="tab-wishlist" class="tab-content">
+      
+      <header class="app-header glass-card">
+        <div class="header-content">
+          <div>
+            <span class="date-badge" style="color: var(--accent-purple);">🔥 Ради чего зарабатываю</span>
+            <h1 class="header-title">Хотелки & Цели</h1>
+          </div>
+          <span class="wish-total-counter" id="wish-total-sum">0 ₽</span>
+        </div>
+      </header>
+
+      <!-- Wishlist Form -->
+      <section class="section-container">
+        <div class="glass-card wishlist-add-card">
+          <div class="wishlist-form-main">
+            <input type="text" id="wish-title" placeholder="Что хочу купить (квартира, диски на тачку, MacBook...)" autocomplete="off">
+          </div>
+          
+          <div class="wishlist-form-meta">
+            <div class="input-with-currency">
+              <input type="number" id="wish-price" placeholder="Примерная цена" inputmode="numeric">
+              <span class="currency-label">₽</span>
+            </div>
+            <select id="wish-tag" class="glass-select">
+              <option value="🎯 Глобальное">🎯 Глобальное (Квартира/Дом)</option>
+              <option value="🚗 Авто">🚗 Авто и тюнинг</option>
+              <option value="💻 Техника">💻 Техника и сетап</option>
+              <option value="👟 Вещи и стиль">👟 Вещи и стиль</option>
+              <option value="🌴 Отдых & Мелочи">🌴 Отдых & Мелочи</option>
+            </select>
+          </div>
+
+          <button class="btn-purple-glow" id="btn-add-wish">
+            + Добавить в хотелки
+          </button>
+        </div>
+      </section>
+
+      <!-- Wishlist Filter Pills -->
+      <div class="weeks-carousel-wrapper">
+        <div class="weeks-carousel" id="wish-filter-pills">
+          <button class="week-pill active" data-filter="all">Все хотелки</button>
+          <button class="week-pill" data-filter="active">В процессе</button>
+          <button class="week-pill" data-filter="done">Исполнено ✅</button>
+        </div>
+      </div>
+
+      <!-- Wishlist List -->
+      <section class="section-container" style="margin-bottom: 95px;">
+        <div id="wishlist-items-list" class="wishlist-grid"></div>
+      </section>
+
+    </main>
+
+    <!-- ================= TAB 4: АНАЛИТИКА ================= -->
     <main id="tab-analytics" class="tab-content">
       
       <header class="app-header glass-card">
@@ -185,7 +298,6 @@
       <!-- Subtab 1: Финансовая аналитика -->
       <div id="subtab-fin-analytics" class="subtab-pane active" style="margin-bottom: 95px;">
         
-        <!-- Profit Summary Cards -->
         <div class="stats-grid">
           <div class="glass-card stat-card">
             <span class="stat-label">Заработано сегодня</span>
@@ -215,7 +327,6 @@
           </div>
         </div>
 
-        <!-- Filter Month for Analytics -->
         <div class="glass-card month-bar">
           <div class="month-picker-row-compact">
             <span class="month-bar-title">Отчетный месяц:</span>
@@ -233,9 +344,7 @@
             <span class="badge-total text-green" id="month-income-total-badge">+0 ₽</span>
           </div>
           <div class="glass-card">
-            <div id="income-breakdown-list" class="breakdown-list">
-              <!-- Rendered dynamically -->
-            </div>
+            <div id="income-breakdown-list" class="breakdown-list"></div>
           </div>
         </section>
 
@@ -250,9 +359,7 @@
           </div>
 
           <div class="glass-card">
-            <div id="expenses-list" class="breakdown-list">
-              <!-- Rendered dynamically -->
-            </div>
+            <div id="expenses-list" class="breakdown-list"></div>
           </div>
         </section>
 
@@ -264,9 +371,7 @@
               <h3 class="section-title">История всех начислений за месяц</h3>
             </div>
           </div>
-          <div id="full-income-history" class="history-list">
-            <!-- Rendered dynamically -->
-          </div>
+          <div id="full-income-history" class="history-list"></div>
         </section>
 
       </div>
@@ -278,27 +383,33 @@
             <span class="info-icon">🌙</span>
             <span>Завершенные дела автоматически перемещаются сюда каждую полночь.</span>
           </div>
-          <div id="archive-tasks-list" class="archive-list">
-            <!-- Rendered dynamically -->
-          </div>
+          <div id="archive-tasks-list" class="archive-list"></div>
         </div>
       </div>
 
     </main>
 
-    <!-- ================= BOTTOM TABBAR ================= -->
+    <!-- ================= BOTTOM TABBAR (4 ТАБА) ================= -->
     <nav class="bottom-tabbar glass-card">
       <button class="tab-btn active" data-tab="tab-main">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         <span>Главная</span>
       </button>
+      <button class="tab-btn" data-tab="tab-schemes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+        <span>Темки</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-wishlist">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Хотелки</span>
+      </button>
       <button class="tab-btn" data-tab="tab-analytics">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
         <span>Аналитика</span>
       </button>
     </nav>
 
-    <!-- Modal: Добавление категории расхода за месяц -->
+    <!-- Modal: Расход по категории -->
     <div id="expense-modal" class="modal-overlay">
       <div class="modal-card glass-card">
         <h3 class="modal-title">Расход по категории за месяц</h3>
@@ -310,7 +421,7 @@
           <datalist id="common-cats">
             <option value="Продукты и супермаркеты">
             <option value="Аренда и жилье">
-            <option value="Транспорт и бензин">
+            <option value="Авто и бензин">
             <option value="Кафе и рестораны">
             <option value="Связь и подписки">
             <option value="Покупки и техника">
@@ -326,6 +437,20 @@
         <div class="modal-actions">
           <button class="btn-glass-sm" id="btn-close-modal">Отмена</button>
           <button class="btn-red-glow" id="btn-save-monthly-expense">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Редактировать заметку -->
+    <div id="note-edit-modal" class="modal-overlay">
+      <div class="modal-card glass-card">
+        <h3 class="modal-title" id="note-modal-title">Редактировать заметку</h3>
+        <div class="modal-field" style="margin-top: 12px;">
+          <textarea id="note-modal-textarea" rows="8" style="font-size: 13.5px; line-height: 1.5;"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-glass-sm" id="btn-close-note-modal">Отмена</button>
+          <button class="btn-green-glow" id="btn-save-note-modal" style="width: auto; padding: 8px 18px;">Сохранить</button>
         </div>
       </div>
     </div>
