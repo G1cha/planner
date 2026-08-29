@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Ежедневник & Финансы</title>
+  
+  <!-- PWA & iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ежедневник">
+  <meta name="theme-color" content="#0d1117">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Background Glowing Orbs -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <div class="app-container">
+    
+    <!-- ================= TAB 1: ГЛАВНАЯ ================= -->
+    <main id="tab-main" class="tab-content active">
+      
+      <!-- Top Header -->
+      <header class="app-header glass-card">
+        <div class="header-content">
+          <div>
+            <span class="date-badge" id="current-date-text">Сегодня</span>
+            <h1 class="header-title">Мой Ежедневник</h1>
+          </div>
+          <button class="icon-btn" id="btn-export-data" title="Резервная копия">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 1. БЛОК ЗАДАЧ -->
+      <section class="section-container">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="indicator-dot dot-amber"></span>
+            <h2 class="section-title">Списки дел</h2>
+          </div>
+          <!-- Period Selector: День / Неделя / 12 Недель -->
+          <div class="segmented-control">
+            <button class="seg-btn active" data-period="day">День</button>
+            <button class="seg-btn" data-period="week">Неделя</button>
+            <button class="seg-btn" data-period="12weeks">12 Недель</button>
+          </div>
+        </div>
+
+        <!-- Task Input -->
+        <div class="glass-card input-row">
+          <input type="text" id="task-input" placeholder="Новая задача (например: Закончить заказ до 18:00)..." autocomplete="off">
+          <button class="action-btn" id="btn-add-task">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        </div>
+
+        <!-- Task List -->
+        <div id="tasks-list" class="items-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 2. БЛОК ДОХОДА ЗА СЕГОДНЯ (МЕЖДУ ДЕЛАМИ И ЗАМЕТКАМИ) -->
+      <section class="section-container">
+        <div class="glass-card glass-card-glow-green income-widget">
+          <div class="income-widget-header">
+            <div class="section-title-wrap">
+              <span class="indicator-dot dot-green"></span>
+              <span class="income-widget-title">Сколько заработал сегодня?</span>
+            </div>
+            <span class="today-earned-sum" id="today-earned-display">+0 ₽</span>
+          </div>
+
+          <div class="income-form-grid">
+            <div class="input-with-currency">
+              <input type="number" id="income-amount" placeholder="0" inputmode="numeric">
+              <span class="currency-label">₽</span>
+            </div>
+            <select id="income-category" class="glass-select">
+              <option value="ЗП">💰 ЗП</option>
+              <option value="Фриланс услуги">💻 Фриланс услуги</option>
+              <option value="Перепродажа">📦 Перепродажа</option>
+              <option value="Другое">✨ Другое</option>
+            </select>
+          </div>
+
+          <div class="income-form-footer">
+            <input type="text" id="income-desc" class="sub-input" placeholder="Комментарий (опционально: верстка сайта, клиент...)">
+            <button class="btn-green-glow" id="btn-save-income">
+              Записать доход
+            </button>
+          </div>
+
+          <!-- Mini log of today's earnings -->
+          <div id="today-incomes-log" class="mini-log"></div>
+        </div>
+      </section>
+
+      <!-- 3. БЛОК КОММЕНТАРИЕВ И ЗАМЕТОК -->
+      <section class="section-container" style="margin-bottom: 90px;">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <span class="indicator-dot dot-purple"></span>
+            <h2 class="section-title">Мысли и идеи</h2>
+          </div>
+        </div>
+
+        <div class="glass-card note-input-card">
+          <textarea id="note-input" placeholder="Мысли, идеи, инсайты за день..." rows="2"></textarea>
+          <div class="note-actions">
+            <button class="btn-glass-sm" id="btn-save-note">Сохранить заметку</button>
+          </div>
+        </div>
+
+        <div id="notes-list" class="notes-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= TAB 2: АНАЛИТИКА ================= -->
+    <main id="tab-analytics" class="tab-content">
+      
+      <header class="app-header glass-card">
+        <h1 class="header-title">Аналитика & Архив</h1>
+        <div class="subnav-tabs">
+          <button class="subnav-btn active" data-subtab="fin-analytics">Прибыль и Финансы</button>
+          <button class="subnav-btn" data-subtab="tasks-archive">Выполненные дела</button>
+        </div>
+      </header>
+
+      <!-- Subtab 1: Финансовая аналитика -->
+      <div id="subtab-fin-analytics" class="subtab-pane active" style="margin-bottom: 90px;">
+        
+        <!-- Profit Summary Cards -->
+        <div class="stats-grid">
+          <div class="glass-card stat-card">
+            <span class="stat-label">Заработано сегодня</span>
+            <span class="stat-value text-green" id="stat-income-day">0 ₽</span>
+            <span class="stat-sub" id="stat-income-day-sub">Прибыли не было</span>
+          </div>
+          <div class="glass-card stat-card">
+            <span class="stat-label">За текущую неделю</span>
+            <span class="stat-value text-green" id="stat-income-week">0 ₽</span>
+            <span class="stat-sub" id="stat-income-week-sub">Прибыли не было</span>
+          </div>
+          <div class="glass-card stat-card full-width">
+            <div class="stat-split">
+              <div>
+                <span class="stat-label">Доход за месяц</span>
+                <span class="stat-value text-green" id="stat-income-month">0 ₽</span>
+              </div>
+              <div>
+                <span class="stat-label">Расходы за месяц</span>
+                <span class="stat-value text-red" id="stat-expense-month">0 ₽</span>
+              </div>
+              <div>
+                <span class="stat-label">Чистый итог</span>
+                <span class="stat-value" id="stat-net-month">0 ₽</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Income Category Breakdown -->
+        <div class="section-container">
+          <h3 class="subsection-title">Структура доходов за месяц</h3>
+          <div class="glass-card" id="income-breakdown-card">
+            <div id="income-breakdown-list" class="breakdown-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Expense Summary (Сводка из банка) -->
+        <section class="section-container">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <span class="indicator-dot dot-red"></span>
+              <h3 class="section-title">Сводка расходов за месяц (из банка)</h3>
+            </div>
+            <button class="btn-glass-sm" id="btn-open-expense-modal">+ Добавить категорию</button>
+          </div>
+
+          <div class="glass-card">
+            <div class="month-picker-row">
+              <label for="expense-month-select">Месяц сводки:</label>
+              <input type="month" id="expense-month-select" class="glass-date-input">
+            </div>
+            <div id="expenses-list" class="breakdown-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Income Log for selected period -->
+        <section class="section-container">
+          <h3 class="subsection-title">История начислений</h3>
+          <div id="full-income-history" class="history-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Subtab 2: Архив выполненных дел -->
+      <div id="subtab-tasks-archive" class="subtab-pane" style="margin-bottom: 90px;">
+        <div class="section-container">
+          <div class="info-banner glass-card">
+            <span class="info-icon">🌙</span>
+            <span>Завершенные дела автоматически перемещаются сюда каждую полночь.</span>
+          </div>
+          <div id="archive-tasks-list" class="archive-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ================= BOTTOM TABBAR ================= -->
+    <nav class="bottom-tabbar glass-card">
+      <button class="tab-btn active" data-tab="tab-main">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Главная</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-analytics">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>Аналитика</span>
+      </button>
+    </nav>
+
+    <!-- Modal: Добавление категории расхода за месяц -->
+    <div id="expense-modal" class="modal-overlay">
+      <div class="modal-card glass-card">
+        <h3 class="modal-title">Расход по категории за месяц</h3>
+        <p class="modal-sub">Внеси общую сумму трат из банковского приложения</p>
+        
+        <div class="modal-field">
+          <label>Категория</label>
+          <input type="text" id="modal-expense-cat" placeholder="Например: Супермаркеты, Аренда, Авто..." list="common-cats">
+          <datalist id="common-cats">
+            <option value="Продукты и супермаркеты">
+            <option value="Аренда и жилье">
+            <option value="Транспорт и бензин">
+            <option value="Кафе и рестораны">
+            <option value="Связь и подписки">
+            <option value="Покупки и техника">
+            <option value="Здоровье и спорт">
+          </datalist>
+        </div>
+
+        <div class="modal-field">
+          <label>Сумма за месяц (₽)</label>
+          <input type="number" id="modal-expense-amount" placeholder="0" inputmode="numeric">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-glass-sm" id="btn-close-modal">Отмена</button>
+          <button class="btn-red-glow" id="btn-save-monthly-expense">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
