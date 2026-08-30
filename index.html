@@ -8,50 +8,43 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ежедневник">
-  <meta name="theme-color" content="#0a0d13">
+  <meta name="theme-color" content="#121418">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-  <div class="glow-orb orb-1"></div>
-  <div class="glow-orb orb-2"></div>
-  <div class="glow-orb orb-3"></div>
 
   <div class="app-container">
     
     <main id="tab-main" class="tab-content active">
       
-      <header class="app-header glass-card">
+      <header class="app-header">
         <div class="header-content">
           <div>
             <span class="date-badge" id="current-date-text">Сегодня</span>
             <h1 class="header-title">Мой Ежедневник</h1>
           </div>
           <button class="icon-btn" id="btn-export-data" title="Резервная копия">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           </button>
         </div>
       </header>
 
       <section class="section-container" id="section-tasks">
         <div class="section-header">
-          <div class="section-title-wrap">
-            <span class="indicator-dot dot-amber"></span>
-            <h2 class="section-title">Список задач</h2>
-          </div>
+          <h2 class="section-title">Задачи</h2>
         </div>
 
         <div id="tasks-container">
-          <div class="glass-card input-row">
+          <div class="card input-row">
             <input type="text" id="task-input" placeholder="Новая задача..." autocomplete="off">
             <button class="action-btn" id="btn-add-task">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </div>
 
@@ -61,59 +54,53 @@
 
       <section class="section-container" id="section-notes-hub" style="margin-bottom: 95px;">
         <div class="section-header">
-          <div class="section-title-wrap">
-            <span class="indicator-dot dot-purple"></span>
-            <h2 class="section-title">Заметки & База</h2>
-          </div>
+          <h2 class="section-title">База знаний</h2>
           <div class="segmented-control" id="notes-category-control">
-            <button class="seg-btn active" data-notes-tab="pinned">База</button>
-            <button class="seg-btn" data-notes-tab="car">🚗 Тачка</button>
+            <button class="seg-btn active" data-notes-tab="pinned">Заметки</button>
+            <button class="seg-btn" data-notes-tab="car">Авто</button>
           </div>
         </div>
 
         <div id="notes-pinned-container" class="notes-subpane">
           <div class="pinned-top-bar">
-            <button class="btn-glass-sm" id="btn-add-smart-note">+ Добавить карточку в базу</button>
+            <button class="btn-outline" id="btn-add-smart-note">+ Добавить карточку</button>
           </div>
           <div class="pinned-notes-grid" id="pinned-notes-list"></div>
         </div>
 
         <div id="notes-car-container" class="notes-subpane" style="display: none;">
-          <div class="glass-card car-status-card">
+          <div class="card car-status-card">
             <div class="car-status-header">
               <div class="car-badge-title">
-                <span style="font-size: 20px;">🚗</span>
+                <span class="emoji-icon">🚗</span>
                 <div>
-                  <h3 style="font-size: 16px; font-weight: 700;">Мое Авто</h3>
-                  <span style="font-size: 12px; color: var(--text-muted);">Бортовой журнал & ТО</span>
+                  <h3>Бортовой журнал</h3>
+                  <span class="text-sub">Техническое обслуживание</span>
                 </div>
               </div>
-              <button class="btn-card-edit" id="btn-edit-oil-status">✏️ Изменить</button>
+              <button class="btn-text" id="btn-edit-oil-status">Изменить</button>
             </div>
             
             <div class="oil-status-box">
-              <span class="oil-label">Следующая замена масла:</span>
-              <span class="oil-km text-green" id="car-oil-target-km">212 000 км</span>
+              <span class="oil-label">Замена масла:</span>
+              <span class="oil-km text-success" id="car-oil-target-km">212 000 км</span>
             </div>
           </div>
 
-          <div class="glass-card car-entry-form-card" style="margin-top: 12px;">
-            <div class="car-form-title">Записать техобслуживание / ремонт</div>
+          <div class="card car-entry-form-card" style="margin-top: 12px;">
+            <div class="car-form-title">Новая запись</div>
             <div class="car-form-grid">
               <input type="text" id="car-log-mileage" placeholder="Пробег (напр. 212к)">
-              <input type="date" id="car-log-date" class="glass-date-input-full" title="Дата ТО">
+              <input type="date" id="car-log-date" class="date-input-full" title="Дата ТО">
             </div>
             <textarea id="car-log-works" placeholder="Выполненные работы..." rows="3"></textarea>
-            <button class="btn-green-glow" id="btn-add-car-log" style="margin-top: 10px;">
-              + Добавить запись в журнал
+            <button class="btn-solid btn-success" id="btn-add-car-log" style="margin-top: 10px;">
+              Добавить запись
             </button>
           </div>
 
-          <div class="section-header" style="margin-top: 18px;">
-            <div class="section-title-wrap">
-              <span class="indicator-dot dot-amber"></span>
-              <h3 class="section-title">История обслуживания</h3>
-            </div>
+          <div class="section-header" style="margin-top: 24px;">
+            <h3 class="section-title">История</h3>
           </div>
           <div id="car-maintenance-list" class="car-logs-list"></div>
         </div>
@@ -121,39 +108,39 @@
     </main>
 
     <main id="tab-schemes" class="tab-content">
-      <header class="app-header glass-card">
+      <header class="app-header">
         <div class="header-content">
           <div>
-            <span class="date-badge" style="color: var(--accent-orange);">💡 Идеи и Проекты</span>
+            <span class="date-badge">Проекты</span>
             <h1 class="header-title">Темки</h1>
           </div>
-          <span class="scheme-count-badge" id="schemes-total-count">0 тем</span>
+          <span class="scheme-count-badge" id="schemes-total-count">0</span>
         </div>
       </header>
 
       <section class="section-container">
-        <div class="glass-card scheme-add-card">
+        <div class="card scheme-add-card">
           <div class="scheme-form-main">
-            <input type="text" id="scheme-title" placeholder="Название темки..." autocomplete="off">
+            <input type="text" id="scheme-title" placeholder="Название..." autocomplete="off">
           </div>
           <div class="scheme-form-meta-single">
-            <input type="text" id="scheme-potential" placeholder="Потенциал / Цель" autocomplete="off">
+            <input type="text" id="scheme-potential" placeholder="Цель / Потенциал" autocomplete="off">
           </div>
           <div class="scheme-form-desc">
-            <textarea id="scheme-notes" placeholder="Шаги реализации, нюансы..." rows="3"></textarea>
+            <textarea id="scheme-notes" placeholder="Заметки по реализации..." rows="3"></textarea>
           </div>
-          <button class="btn-amber-glow" id="btn-add-scheme">
-            + Записать темку
+          <button class="btn-solid btn-primary" id="btn-add-scheme">
+            Создать
           </button>
         </div>
       </section>
 
       <div class="weeks-carousel-wrapper">
         <div class="weeks-carousel" id="scheme-filter-pills">
-          <button class="week-pill active" data-scheme-filter="all">Все темки</button>
-          <button class="week-pill" data-scheme-filter="idea">💡 В идеях</button>
-          <button class="week-pill" data-scheme-filter="in_progress">⚙️ В работе</button>
-          <button class="week-pill" data-scheme-filter="launched">🚀 Запущено</button>
+          <button class="week-pill active" data-scheme-filter="all">Все</button>
+          <button class="week-pill" data-scheme-filter="idea">Идеи</button>
+          <button class="week-pill" data-scheme-filter="in_progress">В работе</button>
+          <button class="week-pill" data-scheme-filter="launched">Запущено</button>
         </div>
       </div>
 
@@ -163,131 +150,129 @@
     </main>
 
     <main id="tab-archive" class="tab-content">
-      <header class="app-header glass-card">
-        <h1 class="header-title">Архив дел</h1>
+      <header class="app-header">
+        <h1 class="header-title">Архив</h1>
       </header>
 
       <div class="section-container" style="margin-bottom: 95px;">
-        <div class="info-banner glass-card">
+        <div class="info-banner card">
           <span class="info-icon">🌙</span>
-          <span>Завершенные дела автоматически перемещаются сюда каждую полночь.</span>
+          <span>Завершенные дела уходят сюда каждую полночь.</span>
         </div>
         <div id="archive-tasks-list" class="archive-list"></div>
       </div>
     </main>
 
-    <nav class="bottom-tabbar glass-card">
+    <nav class="bottom-tabbar">
       <button class="tab-btn active" data-tab="tab-main">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         <span>Главная</span>
       </button>
       <button class="tab-btn" data-tab="tab-schemes">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
         <span>Темки</span>
       </button>
       <button class="tab-btn" data-tab="tab-archive">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"></path></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"></path></svg>
         <span>Архив</span>
       </button>
     </nav>
 
     <div id="smart-note-modal" class="modal-overlay">
-      <div class="modal-card glass-card">
+      <div class="modal-card card">
         <h3 class="modal-title" id="smart-note-modal-title">Карточка базы</h3>
         
         <div class="modal-field-grid-2">
           <div class="modal-field">
-            <label>Эмодзи</label>
+            <label>Иконка</label>
             <input type="text" id="sn-modal-icon" placeholder="📌">
           </div>
           <div class="modal-field">
-            <label>Цвет подсветки</label>
-            <select id="sn-modal-color" class="glass-select">
-              <option value="badge-blue">Голубой</option>
-              <option value="badge-orange">Оранжевый</option>
-              <option value="badge-green">Зеленый</option>
+            <label>Цвет</label>
+            <select id="sn-modal-color" class="custom-select">
               <option value="badge-purple">Фиолетовый</option>
+              <option value="badge-green">Зеленый</option>
+              <option value="badge-blue">Синий</option>
+              <option value="badge-orange">Оранжевый</option>
             </select>
           </div>
         </div>
 
         <div class="modal-field">
           <label>Заголовок</label>
-          <input type="text" id="sn-modal-title" placeholder="Название карточки...">
+          <input type="text" id="sn-modal-title" placeholder="Название...">
         </div>
 
         <div class="modal-field">
-          <label>Подсветка / Бейдж (напр. Режим...)</label>
-          <input type="text" id="sn-modal-badge" placeholder="Текст плашки">
+          <label>Метка</label>
+          <input type="text" id="sn-modal-badge" placeholder="Текст метки">
         </div>
 
         <div class="modal-field">
           <label>Содержимое</label>
-          <div class="note-editor-toolbar modal-toolbar">
+          <div class="note-editor-toolbar">
             <button type="button" class="toolbar-btn" data-cmd-modal="bold"><b>B</b></button>
             <button type="button" class="toolbar-btn" data-cmd-modal="italic"><i>I</i></button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="insertUnorderedList">• Список</button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="insertOrderedList">1. Список</button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="hilite">⚡️</button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="insertHorizontalRule">—</button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="insertUnorderedList">•</button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="insertOrderedList">1.</button>
+            <button type="button" class="toolbar-btn" data-cmd-modal="hilite">Выделить</button>
           </div>
-          <div id="sn-modal-rich-content" class="rich-editor-box" contenteditable="true" style="min-height: 120px;"></div>
+          <div id="sn-modal-rich-content" class="rich-editor-box" contenteditable="true"></div>
         </div>
 
         <div class="modal-actions-between">
-          <button class="btn-danger-text" id="btn-delete-smart-note" style="display: none;">Удалить</button>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-glass-sm" id="btn-close-sn-modal">Отмена</button>
-            <button class="btn-green-glow" id="btn-save-smart-note" style="width: auto; padding: 8px 16px;">Сохранить</button>
+          <button class="btn-text text-danger" id="btn-delete-smart-note" style="display: none;">Удалить</button>
+          <div style="display: flex; gap: 8px; margin-left: auto;">
+            <button class="btn-outline" id="btn-close-sn-modal">Отмена</button>
+            <button class="btn-solid btn-primary" id="btn-save-smart-note">Сохранить</button>
           </div>
         </div>
       </div>
     </div>
 
     <div id="scheme-modal" class="modal-overlay">
-      <div class="modal-card glass-card">
-        <h3 class="modal-title">Редактировать темку</h3>
+      <div class="modal-card card">
+        <h3 class="modal-title">Настройки темки</h3>
         <div class="modal-field">
-          <label>Название темки</label>
+          <label>Название</label>
           <input type="text" id="modal-scheme-title" placeholder="Купить электровелик...">
         </div>
         <div class="modal-field">
-          <label>Потенциал / Цель</label>
+          <label>Цель</label>
           <input type="text" id="modal-scheme-potential" placeholder="Ожидаемый результат">
         </div>
         <div class="modal-field">
           <label>Статус</label>
-          <select id="modal-scheme-status" class="glass-select">
-            <option value="idea">💡 В идеях</option>
-            <option value="in_progress">⚙️ В работе</option>
-            <option value="launched">🚀 Запущено</option>
+          <select id="modal-scheme-status" class="custom-select">
+            <option value="idea">Идея</option>
+            <option value="in_progress">В работе</option>
+            <option value="launched">Запущено</option>
           </select>
         </div>
         <div class="modal-field">
-          <label>Шаги и нюансы</label>
+          <label>Заметки</label>
           <textarea id="modal-scheme-notes" rows="4"></textarea>
         </div>
         <div class="modal-actions-between">
-          <button class="btn-danger-text" id="btn-delete-scheme-modal">Удалить</button>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-glass-sm" id="btn-close-scheme-modal">Отмена</button>
-            <button class="btn-amber-glow" id="btn-save-scheme-modal" style="width: auto; padding: 8px 16px;">Сохранить</button>
+          <button class="btn-text text-danger" id="btn-delete-scheme-modal">Удалить</button>
+          <div style="display: flex; gap: 8px; margin-left: auto;">
+            <button class="btn-outline" id="btn-close-scheme-modal">Отмена</button>
+            <button class="btn-solid btn-primary" id="btn-save-scheme-modal">Сохранить</button>
           </div>
         </div>
       </div>
     </div>
 
     <div id="car-oil-modal" class="modal-overlay">
-      <div class="modal-card glass-card">
-        <h3 class="modal-title">Следующая замена масла</h3>
-        <p class="modal-sub">Укажи пробег до следующего ТО</p>
+      <div class="modal-card card">
+        <h3 class="modal-title">Замена масла</h3>
         <div class="modal-field">
-          <label>Пробег следующей замены</label>
+          <label>Пробег следующего ТО</label>
           <input type="text" id="modal-car-oil-input" placeholder="212 000 км">
         </div>
         <div class="modal-actions">
-          <button class="btn-glass-sm" id="btn-close-oil-modal">Отмена</button>
-          <button class="btn-green-glow" id="btn-save-oil-modal" style="width: auto; padding: 8px 16px;">Сохранить</button>
+          <button class="btn-outline" id="btn-close-oil-modal">Отмена</button>
+          <button class="btn-solid btn-success" id="btn-save-oil-modal">Сохранить</button>
         </div>
       </div>
     </div>

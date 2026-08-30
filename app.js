@@ -1,5 +1,5 @@
 // ============================================================
-// APP LOGIC & LOCAL PERSISTENCE (MINIMAL TASK & HUSTLE PLANNER)
+// APP LOGIC & LOCAL PERSISTENCE
 // ============================================================
 
 const STORAGE_KEYS = {
@@ -12,15 +12,12 @@ const STORAGE_KEYS = {
   LAST_DATE: "pwa_last_login_date_v8",
 };
 
-// Initial Data
 const DEFAULT_SMART_NOTES = [];
 const DEFAULT_CAR_LOGS = [];
 const DEFAULT_SCHEMES = [];
 
-// State
-let currentNotesTab = "pinned"; // 'pinned' | 'car'
+let currentNotesTab = "pinned";
 let currentSchemeFilter = "all";
-
 let editingSmartNoteId = null;
 let editingSchemeId = null;
 
@@ -66,15 +63,13 @@ function initDate() {
   const curDateEl = document.getElementById("current-date-text");
   if (curDateEl)
     curDateEl.textContent = str.charAt(0).toUpperCase() + str.slice(1);
-
   const carDateEl = document.getElementById("car-log-date");
   if (carDateEl) carDateEl.value = getIsoDateString(new Date());
 }
 
 function getStored(key, def) {
   try {
-    const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : def;
+    return JSON.parse(localStorage.getItem(key)) || def;
   } catch (e) {
     return def;
   }
@@ -87,7 +82,6 @@ function checkMidnightArchiving() {
   const todayStr = getIsoDateString(new Date());
   const tasks = getStored(STORAGE_KEYS.TASKS, []);
   let archive = getStored(STORAGE_KEYS.ARCHIVE, []);
-
   const activeTasks = [];
   let movedCount = 0;
 
@@ -104,13 +98,11 @@ function checkMidnightArchiving() {
     saveStored(STORAGE_KEYS.TASKS, activeTasks);
     saveStored(STORAGE_KEYS.ARCHIVE, archive);
   }
-
   localStorage.setItem(STORAGE_KEYS.LAST_DATE, todayStr);
 }
 
 // ================= NAVIGATION =================
 function initNavigation() {
-  // Main 3-tabbar
   const tabBtns = document.querySelectorAll(".bottom-tabbar .tab-btn");
   tabBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -118,18 +110,14 @@ function initNavigation() {
       document
         .querySelectorAll(".tab-content")
         .forEach((c) => c.classList.remove("active"));
-
       btn.classList.add("active");
       const targetId = btn.getAttribute("data-tab");
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) targetEl.classList.add("active");
-
+      document.getElementById(targetId).classList.add("active");
       if (targetId === "tab-schemes") renderSchemes();
       else if (targetId === "tab-archive") renderArchive();
     });
   });
 
-  // Notes Subtabs
   const notesCategoryBtns = document.querySelectorAll(
     "#notes-category-control .seg-btn",
   );
@@ -138,58 +126,45 @@ function initNavigation() {
       notesCategoryBtns.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentNotesTab = btn.getAttribute("data-notes-tab");
-
-      const pinnedC = document.getElementById("notes-pinned-container");
-      const carC = document.getElementById("notes-car-container");
-
-      pinnedC.style.display = currentNotesTab === "pinned" ? "block" : "none";
-      carC.style.display = currentNotesTab === "car" ? "block" : "none";
-
+      document.getElementById("notes-pinned-container").style.display =
+        currentNotesTab === "pinned" ? "block" : "none";
+      document.getElementById("notes-car-container").style.display =
+        currentNotesTab === "car" ? "block" : "none";
       if (currentNotesTab === "car") renderCarHub();
-      else if (currentNotesTab === "pinned") renderSmartNotes();
+      else renderSmartNotes();
     });
   });
 
-  // Export JSON Backup
-  const exportBtn = document.getElementById("btn-export-data");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", () => {
-      const dump = {
-        tasks: getStored(STORAGE_KEYS.TASKS, []),
-        archive: getStored(STORAGE_KEYS.ARCHIVE, []),
-        smartNotes: getStored(STORAGE_KEYS.SMART_NOTES, []),
-        carOil: getStored(STORAGE_KEYS.CAR_OIL, "212 000 км"),
-        carLogs: getStored(STORAGE_KEYS.CAR_LOGS, []),
-        schemes: getStored(STORAGE_KEYS.SCHEMES, []),
-        exportDate: new Date().toISOString(),
-      };
-      const blob = new Blob([JSON.stringify(dump, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `planner_backup_${getIsoDateString(new Date())}.json`;
-      a.click();
+  document.getElementById("btn-export-data")?.addEventListener("click", () => {
+    const dump = {
+      tasks: getStored(STORAGE_KEYS.TASKS, []),
+      archive: getStored(STORAGE_KEYS.ARCHIVE, []),
+      smartNotes: getStored(STORAGE_KEYS.SMART_NOTES, []),
+      carOil: getStored(STORAGE_KEYS.CAR_OIL, ""),
+      carLogs: getStored(STORAGE_KEYS.CAR_LOGS, []),
+      schemes: getStored(STORAGE_KEYS.SCHEMES, []),
+    };
+    const blob = new Blob([JSON.stringify(dump, null, 2)], {
+      type: "application/json",
     });
-  }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `backup_${getIsoDateString(new Date())}.json`;
+    a.click();
+  });
 }
 
-// ================= TASKS (PRIORITY SYSTEM) =================
+// ================= TASKS =================
 function initTasks() {
   const input = document.getElementById("task-input");
   const addBtn = document.getElementById("btn-add-task");
-  if (!input || !addBtn) return;
-
   const addTask = () => {
     const text = input.value.trim();
     if (!text) return;
-
     const tasks = getStored(STORAGE_KEYS.TASKS, []);
-    // Push new tasks to top
     tasks.unshift({
-      id: "task_" + Date.now(),
-      text: text,
+      id: "t_" + Date.now(),
+      text,
       done: false,
       createdAt: getIsoDateString(new Date()),
       doneDate: null,
@@ -198,50 +173,47 @@ function initTasks() {
     input.value = "";
     renderTasks();
   };
-
-  addBtn.addEventListener("click", addTask);
-  input.addEventListener("keydown", (e) => {
+  addBtn?.addEventListener("click", addTask);
+  input?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") addTask();
   });
 }
 
-function toggleTask(id) {
+window.toggleTask = function (id) {
   const tasks = getStored(STORAGE_KEYS.TASKS, []);
-  const todayStr = getIsoDateString(new Date());
   const item = tasks.find((t) => t.id === id);
   if (item) {
     item.done = !item.done;
-    item.doneDate = item.done ? todayStr : null;
+    item.doneDate = item.done ? getIsoDateString(new Date()) : null;
     saveStored(STORAGE_KEYS.TASKS, tasks);
     renderTasks();
   }
-}
+};
 
-function deleteTask(id) {
+window.deleteTask = function (id) {
   let tasks = getStored(STORAGE_KEYS.TASKS, []);
-  tasks = tasks.filter((t) => t.id !== id);
-  saveStored(STORAGE_KEYS.TASKS, tasks);
+  saveStored(
+    STORAGE_KEYS.TASKS,
+    tasks.filter((t) => t.id !== id),
+  );
   renderTasks();
-}
+};
 
-function moveTask(index, direction) {
+window.moveTask = function (index, direction) {
   const tasks = getStored(STORAGE_KEYS.TASKS, []);
-  if (direction === -1 && index > 0) {
+  if (direction === -1 && index > 0)
     [tasks[index - 1], tasks[index]] = [tasks[index], tasks[index - 1]];
-  } else if (direction === 1 && index < tasks.length - 1) {
+  else if (direction === 1 && index < tasks.length - 1)
     [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
-  }
   saveStored(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
-}
+};
 
 function renderTasks() {
   const container = document.getElementById("tasks-list");
-  if (!container) return;
   const tasks = getStored(STORAGE_KEYS.TASKS, []);
-
-  if (tasks.length === 0) {
-    container.innerHTML = `<div class="empty-state">Нет задач. Запишите первую! ✨</div>`;
+  if (!tasks.length) {
+    container.innerHTML = `<div class="empty-state">Нет активных задач</div>`;
     return;
   }
 
@@ -250,18 +222,14 @@ function renderTasks() {
       (t, index) => `
     <div class="task-item ${t.done ? "done" : ""}">
       <div class="custom-checkbox" onclick="toggleTask('${t.id}')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
       </div>
       <div class="task-text">${escapeHtml(t.text)}</div>
-      
       <div class="task-reorder-controls">
         <button class="task-move-btn" onclick="moveTask(${index}, -1)" ${index === 0 ? "disabled" : ""}>▲</button>
         <button class="task-move-btn" onclick="moveTask(${index}, 1)" ${index === tasks.length - 1 ? "disabled" : ""}>▼</button>
       </div>
-
-      <button class="task-del-btn" onclick="deleteTask('${t.id}')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </button>
+      <button class="task-del-btn" onclick="deleteTask('${t.id}')">✕</button>
     </div>
   `,
     )
@@ -271,151 +239,108 @@ function renderTasks() {
 // ================= SMART NOTES =================
 function initSmartNotes() {
   const modal = document.getElementById("smart-note-modal");
-  const addBtn = document.getElementById("btn-add-smart-note");
-  const closeBtn = document.getElementById("btn-close-sn-modal");
-  const saveBtn = document.getElementById("btn-save-smart-note");
-  const deleteBtn = document.getElementById("btn-delete-smart-note");
-  const modalEditor = document.getElementById("sn-modal-rich-content");
-  if (!modal) return;
+  document
+    .getElementById("btn-add-smart-note")
+    ?.addEventListener("click", () => {
+      editingSmartNoteId = null;
+      document.getElementById("smart-note-modal-title").textContent =
+        "Новая карточка";
+      document.getElementById("sn-modal-icon").value = "📌";
+      document.getElementById("sn-modal-color").value = "badge-purple";
+      document.getElementById("sn-modal-title").value = "";
+      document.getElementById("sn-modal-badge").value = "";
+      document.getElementById("sn-modal-rich-content").innerHTML = "";
+      document.getElementById("btn-delete-smart-note").style.display = "none";
+      modal.classList.add("active");
+    });
 
-  const modalToolbarBtns = document.querySelectorAll(
-    ".modal-toolbar .toolbar-btn",
-  );
-  modalToolbarBtns.forEach((btn) => {
+  document.querySelectorAll(".modal-toolbar .toolbar-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       const cmd = btn.getAttribute("data-cmd-modal");
-      execRichCommand(cmd, modalEditor);
+      const editor = document.getElementById("sn-modal-rich-content");
+      editor.focus();
+      cmd === "hilite"
+        ? document.execCommand("hiliteColor", false, "#8e54e9")
+        : document.execCommand(cmd, false, null);
     });
   });
 
-  if (addBtn) {
-    addBtn.addEventListener("click", () => {
-      editingSmartNoteId = null;
-      document.getElementById("smart-note-modal-title").textContent =
-        "Новая карточка базы";
-      document.getElementById("sn-modal-icon").value = "📌";
-      document.getElementById("sn-modal-color").value = "badge-blue";
-      document.getElementById("sn-modal-title").value = "";
-      document.getElementById("sn-modal-badge").value = "";
-      if (modalEditor) modalEditor.innerHTML = "";
-      deleteBtn.style.display = "none";
-      modal.classList.add("active");
-    });
-  }
+  document
+    .getElementById("btn-close-sn-modal")
+    ?.addEventListener("click", () => modal.classList.remove("active"));
 
-  if (closeBtn)
-    closeBtn.addEventListener("click", () => modal.classList.remove("active"));
-
-  if (saveBtn) {
-    saveBtn.addEventListener("click", () => {
-      const icon =
-        document.getElementById("sn-modal-icon").value.trim() || "📌";
-      const color = document.getElementById("sn-modal-color").value;
+  document
+    .getElementById("btn-save-smart-note")
+    ?.addEventListener("click", () => {
       const title = document.getElementById("sn-modal-title").value.trim();
-      const badge = document.getElementById("sn-modal-badge").value.trim();
-      const content = modalEditor ? modalEditor.innerHTML : "";
-
-      if (!title) {
-        alert("Укажите заголовок карточки");
-        return;
-      }
-
+      if (!title) return alert("Введите заголовок");
       const notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
+      const data = {
+        icon: document.getElementById("sn-modal-icon").value || "📌",
+        badgeClass: document.getElementById("sn-modal-color").value,
+        title,
+        badge: document.getElementById("sn-modal-badge").value.trim(),
+        content: document.getElementById("sn-modal-rich-content").innerHTML,
+      };
       if (editingSmartNoteId) {
-        const item = notes.find((n) => n.id === editingSmartNoteId);
-        if (item) {
-          item.icon = icon;
-          item.badgeClass = color;
-          item.title = title;
-          item.badge = badge;
-          item.content = content;
-        }
+        Object.assign(
+          notes.find((n) => n.id === editingSmartNoteId),
+          data,
+        );
       } else {
-        notes.push({
-          id: "sn_" + Date.now(),
-          icon: icon,
-          badgeClass: color,
-          title: title,
-          badge: badge,
-          content: content,
-        });
+        notes.push({ id: "sn_" + Date.now(), ...data });
       }
-
       saveStored(STORAGE_KEYS.SMART_NOTES, notes);
       modal.classList.remove("active");
       renderSmartNotes();
     });
-  }
 
-  if (deleteBtn) {
-    deleteBtn.addEventListener("click", () => {
-      if (!editingSmartNoteId) return;
-      if (confirm("Точно удалить эту карточку из базы?")) {
-        let notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
-        notes = notes.filter((n) => n.id !== editingSmartNoteId);
-        saveStored(STORAGE_KEYS.SMART_NOTES, notes);
+  document
+    .getElementById("btn-delete-smart-note")
+    ?.addEventListener("click", () => {
+      if (confirm("Удалить карточку?")) {
+        saveStored(
+          STORAGE_KEYS.SMART_NOTES,
+          getStored(STORAGE_KEYS.SMART_NOTES, []).filter(
+            (n) => n.id !== editingSmartNoteId,
+          ),
+        );
         modal.classList.remove("active");
         renderSmartNotes();
       }
     });
-  }
 }
 
-function execRichCommand(cmd, targetElement) {
-  targetElement.focus();
-  if (cmd === "hilite") {
-    document.execCommand("hiliteColor", false, "rgba(245, 158, 11, 0.35)");
-  } else if (cmd === "insertHorizontalRule") {
-    document.execCommand("insertHorizontalRule", false, null);
-  } else {
-    document.execCommand(cmd, false, null);
-  }
-}
-
-function openEditSmartNote(id) {
+window.openEditSmartNote = function (id) {
   editingSmartNoteId = id;
-  const modal = document.getElementById("smart-note-modal");
-  const deleteBtn = document.getElementById("btn-delete-smart-note");
-  const notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
-  const item = notes.find((n) => n.id === id);
-  const modalEditor = document.getElementById("sn-modal-rich-content");
-  if (!item || !modal) return;
-
+  const item = getStored(STORAGE_KEYS.SMART_NOTES, []).find((n) => n.id === id);
+  if (!item) return;
   document.getElementById("smart-note-modal-title").textContent =
-    "Редактировать карточку";
+    "Редактирование";
   document.getElementById("sn-modal-icon").value = item.icon || "📌";
   document.getElementById("sn-modal-color").value =
-    item.badgeClass || "badge-blue";
+    item.badgeClass || "badge-purple";
   document.getElementById("sn-modal-title").value = item.title;
   document.getElementById("sn-modal-badge").value = item.badge || "";
-  if (modalEditor) modalEditor.innerHTML = item.content || "";
-  deleteBtn.style.display = "block";
-  modal.classList.add("active");
-}
+  document.getElementById("sn-modal-rich-content").innerHTML =
+    item.content || "";
+  document.getElementById("btn-delete-smart-note").style.display = "block";
+  document.getElementById("smart-note-modal").classList.add("active");
+};
 
 function renderSmartNotes() {
-  const container = document.getElementById("pinned-notes-list");
-  if (!container) return;
-  const notes = getStored(STORAGE_KEYS.SMART_NOTES, DEFAULT_SMART_NOTES);
-
-  container.innerHTML = notes
+  const notes = getStored(STORAGE_KEYS.SMART_NOTES, []);
+  document.getElementById("pinned-notes-list").innerHTML = notes
     .map(
       (n) => `
-    <div class="glass-card smart-card">
+    <div class="card smart-card">
       <div class="smart-card-header">
-        <div class="smart-card-title-wrap">
-          <span class="smart-card-icon">${n.icon}</span>
-          <span class="smart-card-title">${escapeHtml(n.title)}</span>
-        </div>
-        ${n.badge ? `<span class="smart-card-badge ${n.badgeClass || "badge-blue"}">${escapeHtml(n.badge)}</span>` : ""}
+        <div class="smart-card-title-wrap"><span>${n.icon}</span><span>${escapeHtml(n.title)}</span></div>
+        ${n.badge ? `<span class="smart-card-badge ${n.badgeClass}">${escapeHtml(n.badge)}</span>` : ""}
       </div>
-      <div class="smart-card-body">
-        ${n.content || ""}
-      </div>
-      <div class="smart-card-actions">
-        <button class="btn-card-edit" onclick="openEditSmartNote('${n.id}')">✏️ Настроить / Изменить</button>
-      </div>
+      <div class="smart-card-body">${n.content || ""}</div>
+      <div class="smart-card-actions"><button class="btn-text" onclick="openEditSmartNote('${n.id}')">Изменить</button></div>
     </div>
   `,
     )
@@ -424,93 +349,76 @@ function renderSmartNotes() {
 
 // ================= CAR HUB =================
 function initCarHub() {
-  const oilModal = document.getElementById("car-oil-modal");
-  const editOilBtn = document.getElementById("btn-edit-oil-status");
-  const closeOilBtn = document.getElementById("btn-close-oil-modal");
-  const saveOilBtn = document.getElementById("btn-save-oil-modal");
-  const oilInput = document.getElementById("modal-car-oil-input");
-
-  if (editOilBtn && oilModal) {
-    editOilBtn.addEventListener("click", () => {
-      oilInput.value = getStored(STORAGE_KEYS.CAR_OIL, "212 000 км");
-      oilModal.classList.add("active");
+  const modal = document.getElementById("car-oil-modal");
+  document
+    .getElementById("btn-edit-oil-status")
+    ?.addEventListener("click", () => {
+      document.getElementById("modal-car-oil-input").value = getStored(
+        STORAGE_KEYS.CAR_OIL,
+        "",
+      );
+      modal.classList.add("active");
     });
-  }
-  if (closeOilBtn)
-    closeOilBtn.addEventListener("click", () =>
-      oilModal.classList.remove("active"),
-    );
-  if (saveOilBtn) {
-    saveOilBtn.addEventListener("click", () => {
-      const val = oilInput.value.trim() || "212 000 км";
-      saveStored(STORAGE_KEYS.CAR_OIL, val);
-      oilModal.classList.remove("active");
+  document
+    .getElementById("btn-close-oil-modal")
+    ?.addEventListener("click", () => modal.classList.remove("active"));
+  document
+    .getElementById("btn-save-oil-modal")
+    ?.addEventListener("click", () => {
+      saveStored(
+        STORAGE_KEYS.CAR_OIL,
+        document.getElementById("modal-car-oil-input").value.trim(),
+      );
+      modal.classList.remove("active");
       renderCarHub();
     });
-  }
 
-  const addLogBtn = document.getElementById("btn-add-car-log");
-  const mileageInput = document.getElementById("car-log-mileage");
-  const dateInput = document.getElementById("car-log-date");
-  const worksInput = document.getElementById("car-log-works");
+  document.getElementById("btn-add-car-log")?.addEventListener("click", () => {
+    const mileage = document.getElementById("car-log-mileage").value.trim();
+    const works = document.getElementById("car-log-works").value.trim();
+    if (!mileage || !works) return alert("Заполните пробег и работы");
 
-  if (addLogBtn) {
-    addLogBtn.addEventListener("click", () => {
-      const mileage = mileageInput.value.trim();
-      const dateVal = dateInput.value || getIsoDateString(new Date());
-      const works = worksInput.value.trim();
-
-      if (!mileage || !works) {
-        alert("Укажите пробег и выполненные работы");
-        return;
-      }
-
-      const logs = getStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
-      logs.unshift({
-        id: "car_" + Date.now(),
-        mileage: mileage,
-        date: dateVal,
-        works: works,
-      });
-      saveStored(STORAGE_KEYS.CAR_LOGS, logs);
-
-      mileageInput.value = "";
-      worksInput.value = "";
-      renderCarHub();
+    const logs = getStored(STORAGE_KEYS.CAR_LOGS, []);
+    logs.unshift({
+      id: "c_" + Date.now(),
+      mileage,
+      date: document.getElementById("car-log-date").value,
+      works,
     });
-  }
+    saveStored(STORAGE_KEYS.CAR_LOGS, logs);
+
+    document.getElementById("car-log-mileage").value = "";
+    document.getElementById("car-log-works").value = "";
+    renderCarHub();
+  });
 }
 
-function deleteCarLog(id) {
-  let logs = getStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
-  logs = logs.filter((l) => l.id !== id);
-  saveStored(STORAGE_KEYS.CAR_LOGS, logs);
+window.deleteCarLog = function (id) {
+  saveStored(
+    STORAGE_KEYS.CAR_LOGS,
+    getStored(STORAGE_KEYS.CAR_LOGS, []).filter((l) => l.id !== id),
+  );
   renderCarHub();
-}
+};
 
 function renderCarHub() {
-  const oilTarget = getStored(STORAGE_KEYS.CAR_OIL, "212 000 км");
-  const oilEl = document.getElementById("car-oil-target-km");
-  if (oilEl) oilEl.textContent = oilTarget;
-
+  document.getElementById("car-oil-target-km").textContent = getStored(
+    STORAGE_KEYS.CAR_OIL,
+    "Не указано",
+  );
+  const logs = getStored(STORAGE_KEYS.CAR_LOGS, []);
   const container = document.getElementById("car-maintenance-list");
-  if (!container) return;
-  const logs = getStored(STORAGE_KEYS.CAR_LOGS, DEFAULT_CAR_LOGS);
-
-  if (logs.length === 0) {
-    container.innerHTML = `<div class="empty-state">Журнал обслуживания пуст. Добавьте первую запись! 🚗</div>`;
-    return;
-  }
+  if (!logs.length)
+    return (container.innerHTML = `<div class="empty-state">Нет записей</div>`);
 
   container.innerHTML = logs
     .map(
       (l) => `
-    <div class="car-log-card">
+    <div class="card">
       <div class="car-log-header">
-        <span class="car-log-mileage-badge">🔧 Пробег: ${escapeHtml(l.mileage)}</span>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 12px; color: var(--text-muted);">${l.date}</span>
-          <button class="task-del-btn" onclick="deleteCarLog('${l.id}')">✕</button>
+        <strong>${escapeHtml(l.mileage)}</strong>
+        <div style="display:flex; gap:12px; align-items:center; color:var(--text-muted); font-size:13px;">
+          ${l.date} <button class="btn-text text-danger" onclick="deleteCarLog('${l.id}')">✕</button>
         </div>
       </div>
       <div class="car-log-works">${escapeHtml(l.works)}</div>
@@ -520,168 +428,130 @@ function renderCarHub() {
     .join("");
 }
 
-// ================= SCHEMES (ТЕМКИ) =================
+// ================= SCHEMES =================
 function initSchemes() {
-  const titleInput = document.getElementById("scheme-title");
-  const potentialInput = document.getElementById("scheme-potential");
-  const notesInput = document.getElementById("scheme-notes");
-  const addBtn = document.getElementById("btn-add-scheme");
-  if (!addBtn) return;
-
-  addBtn.addEventListener("click", () => {
-    const title = titleInput.value.trim();
-    const potential = potentialInput.value.trim();
-    const notes = notesInput.value.trim();
-
-    if (!title) {
-      alert("Укажите название темки");
-      return;
-    }
-
-    const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+  document.getElementById("btn-add-scheme")?.addEventListener("click", () => {
+    const title = document.getElementById("scheme-title").value.trim();
+    if (!title) return alert("Введите название");
+    const list = getStored(STORAGE_KEYS.SCHEMES, []);
     list.unshift({
-      id: "sch_" + Date.now(),
-      title: title,
-      potential: potential || "Не указан",
+      id: "s_" + Date.now(),
+      title,
       status: "idea",
-      notes: notes,
+      potential:
+        document.getElementById("scheme-potential").value.trim() || "-",
+      notes: document.getElementById("scheme-notes").value.trim(),
     });
     saveStored(STORAGE_KEYS.SCHEMES, list);
-
-    titleInput.value = "";
-    potentialInput.value = "";
-    notesInput.value = "";
+    document.getElementById("scheme-title").value = "";
+    document.getElementById("scheme-potential").value = "";
+    document.getElementById("scheme-notes").value = "";
     renderSchemes();
   });
 
-  const filterBtns = document.querySelectorAll(
-    "#scheme-filter-pills .week-pill",
-  );
-  filterBtns.forEach((btn) => {
+  const pills = document.querySelectorAll(".week-pill");
+  pills.forEach((btn) =>
     btn.addEventListener("click", () => {
-      filterBtns.forEach((b) => b.classList.remove("active"));
+      pills.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
       currentSchemeFilter = btn.getAttribute("data-scheme-filter");
       renderSchemes();
-    });
-  });
+    }),
+  );
 
   const modal = document.getElementById("scheme-modal");
-  const closeBtn = document.getElementById("btn-close-scheme-modal");
-  const saveBtn = document.getElementById("btn-save-scheme-modal");
-  const delBtn = document.getElementById("btn-delete-scheme-modal");
-
-  if (closeBtn)
-    closeBtn.addEventListener("click", () => modal.classList.remove("active"));
-
-  if (saveBtn) {
-    saveBtn.addEventListener("click", () => {
-      if (!editingSchemeId) return;
-      const title = document.getElementById("modal-scheme-title").value.trim();
-      const potential = document
-        .getElementById("modal-scheme-potential")
-        .value.trim();
-      const status = document.getElementById("modal-scheme-status").value;
-      const notes = document.getElementById("modal-scheme-notes").value.trim();
-
-      if (!title) {
-        alert("Укажите название темки");
-        return;
-      }
-
-      const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+  document
+    .getElementById("btn-close-scheme-modal")
+    ?.addEventListener("click", () => modal.classList.remove("active"));
+  document
+    .getElementById("btn-save-scheme-modal")
+    ?.addEventListener("click", () => {
+      const list = getStored(STORAGE_KEYS.SCHEMES, []);
       const item = list.find((s) => s.id === editingSchemeId);
       if (item) {
-        item.title = title;
-        item.potential = potential;
-        item.status = status;
-        item.notes = notes;
+        item.title = document.getElementById("modal-scheme-title").value.trim();
+        item.potential = document
+          .getElementById("modal-scheme-potential")
+          .value.trim();
+        item.status = document.getElementById("modal-scheme-status").value;
+        item.notes = document.getElementById("modal-scheme-notes").value.trim();
         saveStored(STORAGE_KEYS.SCHEMES, list);
         renderSchemes();
       }
       modal.classList.remove("active");
     });
-  }
 
-  if (delBtn) {
-    delBtn.addEventListener("click", () => {
-      if (!editingSchemeId) return;
-      if (confirm("Удалить эту темку?")) {
-        let list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
-        list = list.filter((s) => s.id !== editingSchemeId);
-        saveStored(STORAGE_KEYS.SCHEMES, list);
-        modal.classList.remove("active");
-        renderSchemes();
-      }
+  document
+    .getElementById("btn-delete-scheme-modal")
+    ?.addEventListener("click", () => {
+      saveStored(
+        STORAGE_KEYS.SCHEMES,
+        getStored(STORAGE_KEYS.SCHEMES, []).filter(
+          (s) => s.id !== editingSchemeId,
+        ),
+      );
+      modal.classList.remove("active");
+      renderSchemes();
     });
-  }
 }
 
-function openEditSchemeModal(id) {
+window.openEditSchemeModal = function (id) {
   editingSchemeId = id;
-  const modal = document.getElementById("scheme-modal");
-  const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
-  const item = list.find((s) => s.id === id);
-  if (!item || !modal) return;
-
+  const item = getStored(STORAGE_KEYS.SCHEMES, []).find((s) => s.id === id);
+  if (!item) return;
   document.getElementById("modal-scheme-title").value = item.title;
   document.getElementById("modal-scheme-potential").value =
     item.potential || "";
   document.getElementById("modal-scheme-status").value = item.status || "idea";
   document.getElementById("modal-scheme-notes").value = item.notes || "";
-  modal.classList.add("active");
-}
+  document.getElementById("scheme-modal").classList.add("active");
+};
 
-function cycleSchemeStatus(id) {
-  const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
+window.cycleSchemeStatus = function (id) {
+  const list = getStored(STORAGE_KEYS.SCHEMES, []);
   const item = list.find((s) => s.id === id);
   if (item) {
-    if (item.status === "idea") item.status = "in_progress";
-    else if (item.status === "in_progress") item.status = "launched";
-    else item.status = "idea";
-
+    item.status =
+      item.status === "idea"
+        ? "in_progress"
+        : item.status === "in_progress"
+          ? "launched"
+          : "idea";
     saveStored(STORAGE_KEYS.SCHEMES, list);
     renderSchemes();
   }
-}
+};
 
 function renderSchemes() {
+  const list = getStored(STORAGE_KEYS.SCHEMES, []);
+  document.getElementById("schemes-total-count").textContent = list.length;
+  const filtered =
+    currentSchemeFilter === "all"
+      ? list
+      : list.filter((s) => s.status === currentSchemeFilter);
   const container = document.getElementById("schemes-items-list");
-  if (!container) return;
-  const list = getStored(STORAGE_KEYS.SCHEMES, DEFAULT_SCHEMES);
-
-  const totalBadge = document.getElementById("schemes-total-count");
-  if (totalBadge) totalBadge.textContent = `${list.length} тем`;
-
-  let filtered = list;
-  if (currentSchemeFilter !== "all") {
-    filtered = list.filter((s) => s.status === currentSchemeFilter);
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state">Темки не найдены. Запишите новую идею! 💡</div>`;
-    return;
-  }
+  if (!filtered.length)
+    return (container.innerHTML = `<div class="empty-state">Нет записей</div>`);
 
   const statusMap = {
-    idea: { label: "💡 В идеях", class: "status-idea" },
-    in_progress: { label: "⚙️ В работе", class: "status-in_progress" },
-    launched: { label: "🚀 Запущено", class: "status-launched" },
+    idea: { label: "Идея", class: "status-idea" },
+    in_progress: { label: "В работе", class: "status-in_progress" },
+    launched: { label: "Запущено", class: "status-launched" },
   };
 
   container.innerHTML = filtered
     .map((s) => {
       const st = statusMap[s.status] || statusMap.idea;
       return `
-      <div class="scheme-card">
+      <div class="card">
         <div class="scheme-header-row">
           <span class="scheme-title-text">${escapeHtml(s.title)}</span>
-          <span class="scheme-status-pill ${st.class}" onclick="cycleSchemeStatus('${s.id}')" title="Нажмите для смены статуса">${st.label}</span>
+          <span class="status-pill ${st.class}" onclick="cycleSchemeStatus('${s.id}')">${st.label}</span>
         </div>
         ${s.notes ? `<div class="scheme-details">${escapeHtml(s.notes)}</div>` : ""}
         <div class="scheme-footer-row">
-          <span class="scheme-potential-tag">Цель: ${escapeHtml(s.potential)}</span>
-          <button class="btn-card-edit" onclick="openEditSchemeModal('${s.id}')">✏️ Настроить</button>
+          <span style="font-size:13px; color:var(--text-main);">Цель: ${escapeHtml(s.potential)}</span>
+          <button class="btn-text" onclick="openEditSchemeModal('${s.id}')">Изменить</button>
         </div>
       </div>
     `;
@@ -691,16 +561,13 @@ function renderSchemes() {
 
 // ================= ARCHIVE =================
 function renderArchive() {
-  const archiveContainer = document.getElementById("archive-tasks-list");
-  if (!archiveContainer) return;
   const archive = getStored(STORAGE_KEYS.ARCHIVE, []);
   const activeDone = getStored(STORAGE_KEYS.TASKS, []).filter((t) => t.done);
   const combined = [...activeDone, ...archive];
+  const container = document.getElementById("archive-tasks-list");
 
-  if (combined.length === 0) {
-    archiveContainer.innerHTML = `<div class="empty-state">Нет выполненных дел в архиве</div>`;
-    return;
-  }
+  if (!combined.length)
+    return (container.innerHTML = `<div class="empty-state">Архив пуст</div>`);
 
   const grouped = {};
   combined.forEach((t) => {
@@ -709,9 +576,9 @@ function renderArchive() {
     grouped[d].push(t);
   });
 
-  const dates = Object.keys(grouped).sort().reverse();
-
-  archiveContainer.innerHTML = dates
+  container.innerHTML = Object.keys(grouped)
+    .sort()
+    .reverse()
     .map(
       (d) => `
     <div class="archive-date-group">
@@ -721,10 +588,8 @@ function renderArchive() {
           .map(
             (t) => `
           <div class="task-item done">
-            <div class="custom-checkbox">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="task-text">${escapeHtml(t.text)}</div>
+            <div class="custom-checkbox" style="background:var(--bg-input); border-color:transparent;"><svg style="display:block; stroke:var(--text-muted);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="task-text" style="color:var(--text-muted);">${escapeHtml(t.text)}</div>
           </div>
         `,
           )
@@ -736,19 +601,18 @@ function renderArchive() {
     .join("");
 }
 
-// ================= RENDER ALL =================
 function renderAll() {
   renderTasks();
   renderSmartNotes();
   renderCarHub();
   renderSchemes();
 }
-
 function escapeHtml(str) {
-  if (!str) return "";
   return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    ? str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+    : "";
 }
