@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ежедневник">
-  <meta name="theme-color" content="#121418">
+  <meta name="theme-color" content="#121212">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   
@@ -22,7 +22,6 @@
   <div class="app-container">
     
     <main id="tab-main" class="tab-content active">
-      
       <header class="app-header">
         <div class="header-content">
           <div>
@@ -52,7 +51,7 @@
         </div>
       </section>
 
-      <section class="section-container" id="section-notes-hub" style="margin-bottom: 95px;">
+      <section class="section-container" id="section-notes-hub">
         <div class="section-header">
           <h2 class="section-title">База знаний</h2>
           <div class="segmented-control" id="notes-category-control">
@@ -87,19 +86,23 @@
             </div>
           </div>
 
-          <div class="card car-entry-form-card" style="margin-top: 12px;">
+          <div class="card car-entry-form-card spacing-top">
             <div class="car-form-title">Новая запись</div>
             <div class="car-form-grid">
-              <input type="text" id="car-log-mileage" placeholder="Пробег (напр. 212к)">
-              <input type="date" id="car-log-date" class="date-input-full" title="Дата ТО">
+              <div class="input-wrap">
+                <input type="text" id="car-log-mileage" placeholder="Пробег (напр. 212к)">
+              </div>
+              <div class="input-wrap">
+                <input type="date" id="car-log-date" class="date-input-full" title="Дата ТО">
+              </div>
             </div>
             <textarea id="car-log-works" placeholder="Выполненные работы..." rows="3"></textarea>
-            <button class="btn-solid btn-success" id="btn-add-car-log" style="margin-top: 10px;">
+            <button class="btn-solid btn-success spacing-top-sm" id="btn-add-car-log">
               Добавить запись
             </button>
           </div>
 
-          <div class="section-header" style="margin-top: 24px;">
+          <div class="section-header spacing-top-lg">
             <h3 class="section-title">История</h3>
           </div>
           <div id="car-maintenance-list" class="car-logs-list"></div>
@@ -144,7 +147,7 @@
         </div>
       </div>
 
-      <section class="section-container" style="margin-bottom: 95px;">
+      <section class="section-container">
         <div id="schemes-items-list" class="schemes-grid"></div>
       </section>
     </main>
@@ -154,7 +157,7 @@
         <h1 class="header-title">Архив</h1>
       </header>
 
-      <div class="section-container" style="margin-bottom: 95px;">
+      <div class="section-container">
         <div class="info-banner card">
           <span class="info-icon">🌙</span>
           <span>Завершенные дела уходят сюда каждую полночь.</span>
@@ -178,6 +181,7 @@
       </button>
     </nav>
 
+    <!-- Modals -->
     <div id="smart-note-modal" class="modal-overlay">
       <div class="modal-card card">
         <h3 class="modal-title" id="smart-note-modal-title">Карточка базы</h3>
@@ -222,7 +226,7 @@
 
         <div class="modal-actions-between">
           <button class="btn-text text-danger" id="btn-delete-smart-note" style="display: none;">Удалить</button>
-          <div style="display: flex; gap: 8px; margin-left: auto;">
+          <div class="actions-right">
             <button class="btn-outline" id="btn-close-sn-modal">Отмена</button>
             <button class="btn-solid btn-primary" id="btn-save-smart-note">Сохранить</button>
           </div>
@@ -255,7 +259,7 @@
         </div>
         <div class="modal-actions-between">
           <button class="btn-text text-danger" id="btn-delete-scheme-modal">Удалить</button>
-          <div style="display: flex; gap: 8px; margin-left: auto;">
+          <div class="actions-right">
             <button class="btn-outline" id="btn-close-scheme-modal">Отмена</button>
             <button class="btn-solid btn-primary" id="btn-save-scheme-modal">Сохранить</button>
           </div>
