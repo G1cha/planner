@@ -3,286 +3,565 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Ежедневник</title>
-  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ежедневник">
-  <meta name="theme-color" content="#121212">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Дневник & Задачи</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card-bg: rgba(26, 29, 36, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f3f4f6;
+      --text-muted: #8b949e;
+      --accent: #8b5cf6;
+      --accent-glow: rgba(139, 92, 246, 0.3);
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: env(safe-area-inset-top, 20px) 16px calc(env(safe-area-inset-bottom, 20px) + 76px) 16px;
+      overflow-x: hidden;
+    }
+
+    /* Верхний блок */
+    header {
+      padding: 16px 4px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    header .date-display {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+
+    /* Стеклянные карточки */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Формы ввода */
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    input, textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Список задач */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .custom-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+
+    .task-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .task-del-btn {
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Заметки */
+    .note-item {
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .note-text {
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .note-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Долгосрок */
+    .memo-item {
+      margin-bottom: 12px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .memo-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .memo-body {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    /* Архив */
+    .archive-group-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin: 16px 4px 8px;
+    }
+
+    .archive-item {
+      opacity: 0.8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.9rem;
+    }
+
+    .archive-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Нижний стеклянный бар навигации */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(58px + env(safe-area-inset-bottom, 16px));
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+      background: rgba(18, 20, 26, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.7rem;
+      gap: 4px;
+      cursor: pointer;
+      width: 25%;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="app-container">
-    
-    <main id="tab-main" class="tab-content active">
-      <header class="app-header">
-        <div class="header-content">
-          <div>
-            <span class="date-badge" id="current-date-text">Сегодня</span>
-            <h1 class="header-title">Мой Ежедневник</h1>
-          </div>
-          <button class="icon-btn" id="btn-export-data" title="Резервная копия">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          </button>
-        </div>
-      </header>
-
-      <section class="section-container" id="section-tasks">
-        <div class="section-header">
-          <h2 class="section-title">Задачи</h2>
-        </div>
-
-        <div id="tasks-container">
-          <div class="card input-row">
-            <input type="text" id="task-input" placeholder="Новая задача..." autocomplete="off">
-            <button class="action-btn" id="btn-add-task">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-          </div>
-
-          <div id="tasks-list" class="items-list"></div>
-        </div>
-      </section>
-
-      <section class="section-container" id="section-notes-hub">
-        <div class="section-header">
-          <h2 class="section-title">База знаний</h2>
-          <div class="segmented-control" id="notes-category-control">
-            <button class="seg-btn active" data-notes-tab="pinned">Заметки</button>
-            <button class="seg-btn" data-notes-tab="car">Авто</button>
-          </div>
-        </div>
-
-        <div id="notes-pinned-container" class="notes-subpane">
-          <div class="pinned-top-bar">
-            <button class="btn-outline" id="btn-add-smart-note">+ Добавить карточку</button>
-          </div>
-          <div class="pinned-notes-grid" id="pinned-notes-list"></div>
-        </div>
-
-        <div id="notes-car-container" class="notes-subpane" style="display: none;">
-          <div class="card car-status-card">
-            <div class="car-status-header">
-              <div class="car-badge-title">
-                <span class="emoji-icon">🚗</span>
-                <div>
-                  <h3>Бортовой журнал</h3>
-                  <span class="text-sub">Техническое обслуживание</span>
-                </div>
-              </div>
-              <button class="btn-text" id="btn-edit-oil-status">Изменить</button>
-            </div>
-            
-            <div class="oil-status-box">
-              <span class="oil-label">Замена масла:</span>
-              <span class="oil-km text-success" id="car-oil-target-km">212 000 км</span>
-            </div>
-          </div>
-
-          <div class="card car-entry-form-card spacing-top">
-            <div class="car-form-title">Новая запись</div>
-            <div class="car-form-grid">
-              <div class="input-wrap">
-                <input type="text" id="car-log-mileage" placeholder="Пробег (напр. 212к)">
-              </div>
-              <div class="input-wrap">
-                <input type="date" id="car-log-date" class="date-input-full" title="Дата ТО">
-              </div>
-            </div>
-            <textarea id="car-log-works" placeholder="Выполненные работы..." rows="3"></textarea>
-            <button class="btn-solid btn-success spacing-top-sm" id="btn-add-car-log">
-              Добавить запись
-            </button>
-          </div>
-
-          <div class="section-header spacing-top-lg">
-            <h3 class="section-title">История</h3>
-          </div>
-          <div id="car-maintenance-list" class="car-logs-list"></div>
-        </div>
-      </section>
-    </main>
-
-    <main id="tab-schemes" class="tab-content">
-      <header class="app-header">
-        <div class="header-content">
-          <div>
-            <span class="date-badge">Проекты</span>
-            <h1 class="header-title">Темки</h1>
-          </div>
-          <span class="scheme-count-badge" id="schemes-total-count">0</span>
-        </div>
-      </header>
-
-      <section class="section-container">
-        <div class="card scheme-add-card">
-          <div class="scheme-form-main">
-            <input type="text" id="scheme-title" placeholder="Название..." autocomplete="off">
-          </div>
-          <div class="scheme-form-meta-single">
-            <input type="text" id="scheme-potential" placeholder="Цель / Потенциал" autocomplete="off">
-          </div>
-          <div class="scheme-form-desc">
-            <textarea id="scheme-notes" placeholder="Заметки по реализации..." rows="3"></textarea>
-          </div>
-          <button class="btn-solid btn-primary" id="btn-add-scheme">
-            Создать
-          </button>
-        </div>
-      </section>
-
-      <div class="weeks-carousel-wrapper">
-        <div class="weeks-carousel" id="scheme-filter-pills">
-          <button class="week-pill active" data-scheme-filter="all">Все</button>
-          <button class="week-pill" data-scheme-filter="idea">Идеи</button>
-          <button class="week-pill" data-scheme-filter="in_progress">В работе</button>
-          <button class="week-pill" data-scheme-filter="launched">Запущено</button>
-        </div>
-      </div>
-
-      <section class="section-container">
-        <div id="schemes-items-list" class="schemes-grid"></div>
-      </section>
-    </main>
-
-    <main id="tab-archive" class="tab-content">
-      <header class="app-header">
-        <h1 class="header-title">Архив</h1>
-      </header>
-
-      <div class="section-container">
-        <div class="info-banner card">
-          <span class="info-icon">🌙</span>
-          <span>Завершенные дела уходят сюда каждую полночь.</span>
-        </div>
-        <div id="archive-tasks-list" class="archive-list"></div>
-      </div>
-    </main>
-
-    <nav class="bottom-tabbar">
-      <button class="tab-btn active" data-tab="tab-main">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Главная</span>
-      </button>
-      <button class="tab-btn" data-tab="tab-schemes">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-        <span>Темки</span>
-      </button>
-      <button class="tab-btn" data-tab="tab-archive">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"></path></svg>
-        <span>Архив</span>
-      </button>
-    </nav>
-
-    <!-- Modals -->
-    <div id="smart-note-modal" class="modal-overlay">
-      <div class="modal-card card">
-        <h3 class="modal-title" id="smart-note-modal-title">Карточка базы</h3>
-        
-        <div class="modal-field-grid-2">
-          <div class="modal-field">
-            <label>Иконка</label>
-            <input type="text" id="sn-modal-icon" placeholder="📌">
-          </div>
-          <div class="modal-field">
-            <label>Цвет</label>
-            <select id="sn-modal-color" class="custom-select">
-              <option value="badge-purple">Фиолетовый</option>
-              <option value="badge-green">Зеленый</option>
-              <option value="badge-blue">Синий</option>
-              <option value="badge-orange">Оранжевый</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="modal-field">
-          <label>Заголовок</label>
-          <input type="text" id="sn-modal-title" placeholder="Название...">
-        </div>
-
-        <div class="modal-field">
-          <label>Метка</label>
-          <input type="text" id="sn-modal-badge" placeholder="Текст метки">
-        </div>
-
-        <div class="modal-field">
-          <label>Содержимое</label>
-          <div class="note-editor-toolbar">
-            <button type="button" class="toolbar-btn" data-cmd-modal="bold"><b>B</b></button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="italic"><i>I</i></button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="insertUnorderedList">•</button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="insertOrderedList">1.</button>
-            <button type="button" class="toolbar-btn" data-cmd-modal="hilite">Выделить</button>
-          </div>
-          <div id="sn-modal-rich-content" class="rich-editor-box" contenteditable="true"></div>
-        </div>
-
-        <div class="modal-actions-between">
-          <button class="btn-text text-danger" id="btn-delete-smart-note" style="display: none;">Удалить</button>
-          <div class="actions-right">
-            <button class="btn-outline" id="btn-close-sn-modal">Отмена</button>
-            <button class="btn-solid btn-primary" id="btn-save-smart-note">Сохранить</button>
-          </div>
-        </div>
-      </div>
+  <header>
+    <div>
+      <div class="date-display" id="currentDate"></div>
+      <h1 id="tabTitle">Задачи на день</h1>
     </div>
+  </header>
 
-    <div id="scheme-modal" class="modal-overlay">
-      <div class="modal-card card">
-        <h3 class="modal-title">Настройки темки</h3>
-        <div class="modal-field">
-          <label>Название</label>
-          <input type="text" id="modal-scheme-title" placeholder="Купить электровелик...">
+  <!-- ВКЛАДКА 1: ЗАДАЧИ -->
+  <section id="tab-tasks" class="tab-content active">
+    <div class="glass-card">
+      <form id="taskForm" onsubmit="addTask(event)">
+        <div class="input-row">
+          <input type="text" id="taskText" placeholder="Что нужно сделать?" required>
         </div>
-        <div class="modal-field">
-          <label>Цель</label>
-          <input type="text" id="modal-scheme-potential" placeholder="Ожидаемый результат">
+        <div class="input-row">
+          <input type="time" id="taskTime" style="max-width: 140px;">
+          <button type="submit" class="btn-primary" style="flex:1;">Добавить задачу</button>
         </div>
-        <div class="modal-field">
-          <label>Статус</label>
-          <select id="modal-scheme-status" class="custom-select">
-            <option value="idea">Идея</option>
-            <option value="in_progress">В работе</option>
-            <option value="launched">Запущено</option>
-          </select>
+      </form>
+    </div>
+    <div class="glass-card" id="taskListContainer">
+      <div id="taskList"></div>
+    </div>
+  </section>
+
+  <!-- ВКЛАДКА 2: БЫСТРЫЕ ЗАМЕТКИ -->
+  <section id="tab-notes" class="tab-content">
+    <div class="glass-card">
+      <form id="noteForm" onsubmit="addNote(event)">
+        <textarea id="noteText" rows="2" placeholder="Заметка, номер телефона, список покупок..." required></textarea>
+        <button type="submit" class="btn-primary" style="width: 100%; height: 42px; margin-top: 8px;">Сохранить запись</button>
+      </form>
+    </div>
+    <div id="notesList"></div>
+  </section>
+
+  <!-- ВКЛАДКА 3: ПАМЯТКИ / ДОЛГОСРОК -->
+  <section id="tab-memos" class="tab-content">
+    <div class="glass-card">
+      <form id="memoForm" onsubmit="addMemo(event)">
+        <input type="text" id="memoTitle" placeholder="Заголовок (например: План по инвестициям)" required style="margin-bottom: 8px;">
+        <textarea id="memoBody" rows="3" placeholder="Шаги, ориентиры, дедлайн, план действий..." required></textarea>
+        <button type="submit" class="btn-primary" style="width: 100%; height: 42px; margin-top: 8px;">Закрепить памятку</button>
+      </form>
+    </div>
+    <div id="memosList"></div>
+  </section>
+
+  <!-- ВКЛАДКА 4: АРХИВ -->
+  <section id="tab-archive" class="tab-content">
+    <div class="glass-card" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+      Журнал завершенных дел. Здесь фиксируется дата закрытия каждой задачи без возможности случайного редактирования.
+    </div>
+    <div id="archiveList"></div>
+  </section>
+
+  <!-- НИЖНЯЯ ПАНЕЛЬ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('tasks', 'Задачи на день')">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      План
+    </button>
+    <button class="nav-btn" onclick="switchTab('notes', 'Быстрые заметки')">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      Заметки
+    </button>
+    <button class="nav-btn" onclick="switchTab('memos', 'Памятки и долгосрок')">
+      <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+      Памятки
+    </button>
+    <button class="nav-btn" onclick="switchTab('archive', 'Архив выполненного')">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM8 15h8v2H8v-2zm0-4h8v2H8v-2zm0-4h8v2H8V7z"/></svg>
+      Архив
+    </button>
+  </nav>
+
+  <script>
+    // Хранилище
+    const DB = {
+      get: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
+      set: (key, val) => localStorage.setItem(key, JSON.stringify(val))
+    };
+
+    // Отображение текущей даты в заголовке
+    const now = new Date();
+    document.getElementById('currentDate').innerText = now.toLocaleDateString('ru-RU', {
+      weekday: 'long', day: 'numeric', month: 'short'
+    });
+
+    // Переключение вкладок
+    function switchTab(tabName, title) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('tab-' + tabName).classList.add('active');
+      document.getElementById('tabTitle').innerText = title;
+      event.currentTarget.classList.add('active');
+
+      if (tabName === 'archive') renderArchive();
+    }
+
+    // --- ЗАДАЧИ ---
+    function renderTasks() {
+      const tasks = DB.get('tasks');
+      const list = document.getElementById('taskList');
+      if (tasks.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size: 0.9rem; text-align:center; padding: 10px;">Нет активных задач</p>';
+        return;
+      }
+      list.innerHTML = tasks.map(t => `
+        <div class="task-item">
+          <div class="custom-checkbox" onclick="completeTask('${t.id}')"></div>
+          <div class="task-content">
+            <div class="task-title">${t.text}</div>
+            ${t.time ? `<div class="task-time">🕒 ${t.time}</div>` : ''}
+          </div>
+          <button class="task-del-btn" onclick="deleteTask('${t.id}')">✕</button>
         </div>
-        <div class="modal-field">
-          <label>Заметки</label>
-          <textarea id="modal-scheme-notes" rows="4"></textarea>
-        </div>
-        <div class="modal-actions-between">
-          <button class="btn-text text-danger" id="btn-delete-scheme-modal">Удалить</button>
-          <div class="actions-right">
-            <button class="btn-outline" id="btn-close-scheme-modal">Отмена</button>
-            <button class="btn-solid btn-primary" id="btn-save-scheme-modal">Сохранить</button>
+      `).join('');
+    }
+
+    function addTask(e) {
+      e.preventDefault();
+      const text = document.getElementById('taskText').value.trim();
+      const time = document.getElementById('taskTime').value;
+      if (!text) return;
+
+      const tasks = DB.get('tasks');
+      tasks.push({ id: Date.now().toString(), text, time, createdAt: new Date().toISOString() });
+      DB.set('tasks', tasks);
+
+      document.getElementById('taskText').value = '';
+      document.getElementById('taskTime').value = '';
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      const tasks = DB.get('tasks').filter(t => t.id !== id);
+      DB.set('tasks', tasks);
+      renderTasks();
+    }
+
+    function completeTask(id) {
+      const tasks = DB.get('tasks');
+      const target = tasks.find(t => t.id === id);
+      if (!target) return;
+
+      // Убираем из активных
+      DB.set('tasks', tasks.filter(t => t.id !== id));
+
+      // Добавляем в архив с датой завершения
+      const archive = DB.get('archive');
+      archive.unshift({
+        id: target.id,
+        text: target.text,
+        time: target.time,
+        completedAt: new Date().toISOString()
+      });
+      DB.set('archive', archive);
+
+      renderTasks();
+    }
+
+    // --- ЗАМЕТКИ ---
+    function renderNotes() {
+      const notes = DB.get('notes');
+      const list = document.getElementById('notesList');
+      if (notes.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size: 0.9rem; text-align:center;">Заметок пока нет</p>';
+        return;
+      }
+      list.innerHTML = notes.map(n => `
+        <div class="glass-card note-item">
+          <div class="note-text">${n.text}</div>
+          <div class="note-footer">
+            <span>${new Date(n.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+            <button class="task-del-btn" onclick="deleteNote('${n.id}')">Удалить</button>
           </div>
         </div>
-      </div>
-    </div>
+      `).join('');
+    }
 
-    <div id="car-oil-modal" class="modal-overlay">
-      <div class="modal-card card">
-        <h3 class="modal-title">Замена масла</h3>
-        <div class="modal-field">
-          <label>Пробег следующего ТО</label>
-          <input type="text" id="modal-car-oil-input" placeholder="212 000 км">
+    function addNote(e) {
+      e.preventDefault();
+      const text = document.getElementById('noteText').value.trim();
+      if (!text) return;
+
+      const notes = DB.get('notes');
+      notes.unshift({ id: Date.now().toString(), text, date: new Date().toISOString() });
+      DB.set('notes', notes);
+
+      document.getElementById('noteText').value = '';
+      renderNotes();
+    }
+
+    function deleteNote(id) {
+      const notes = DB.get('notes').filter(n => n.id !== id);
+      DB.set('notes', notes);
+      renderNotes();
+    }
+
+    // --- ПАМЯТКИ ---
+    function renderMemos() {
+      const memos = DB.get('memos');
+      const list = document.getElementById('memosList');
+      if (memos.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size: 0.9rem; text-align:center;">Нет закрепленных памяток</p>';
+        return;
+      }
+      list.innerHTML = memos.map(m => `
+        <div class="glass-card memo-item">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div class="memo-title">${m.title}</div>
+            <button class="task-del-btn" onclick="deleteMemo('${m.id}')">✕</button>
+          </div>
+          <div class="memo-body">${m.body}</div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-outline" id="btn-close-oil-modal">Отмена</button>
-          <button class="btn-solid btn-success" id="btn-save-oil-modal">Сохранить</button>
-        </div>
-      </div>
-    </div>
+      `).join('');
+    }
 
-  </div>
+    function addMemo(e) {
+      e.preventDefault();
+      const title = document.getElementById('memoTitle').value.trim();
+      const body = document.getElementById('memoBody').value.trim();
+      if (!title || !body) return;
 
-  <script src="app.js"></script>
+      const memos = DB.get('memos');
+      memos.unshift({ id: Date.now().toString(), title, body, date: new Date().toISOString() });
+      DB.set('memos', memos);
+
+      document.getElementById('memoTitle').value = '';
+      document.getElementById('memoBody').value = '';
+      renderMemos();
+    }
+
+    function deleteMemo(id) {
+      const memos = DB.get('memos').filter(m => m.id !== id);
+      DB.set('memos', memos);
+      renderMemos();
+    }
+
+    // --- АРХИВ (ТОЛЬКО ДЛЯ ЧТЕНИЯ) ---
+    function renderArchive() {
+      const archive = DB.get('archive');
+      const list = document.getElementById('archiveList');
+      if (archive.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size: 0.9rem; text-align:center; padding: 20px;">Архив пуст</p>';
+        return;
+      }
+
+      // Группировка по Месяц Год
+      const groups = {};
+      archive.forEach(item => {
+        const d = new Date(item.completedAt);
+        const groupKey = d.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+        if (!groups[groupKey]) groups[groupKey] = [];
+        groups[groupKey].push(item);
+      });
+
+      let html = '';
+      for (const [groupName, items] of Object.entries(groups)) {
+        html += `<div class="archive-group-title">${groupName}</div><div class="glass-card">`;
+        html += items.map(item => {
+          const dateStr = new Date(item.completedAt).toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+          });
+          return `
+            <div class="archive-item">
+              <div>
+                <div>${item.text}</div>
+                ${item.time ? `<div class="task-time">🕒 Было на: ${item.time}</div>` : ''}
+              </div>
+              <div class="archive-date">✓ ${dateStr}</div>
+            </div>
+          `;
+        }).join('');
+        html += `</div>`;
+      }
+      list.innerHTML = html;
+    }
+
+    // Первоначальный рендер
+    renderTasks();
+    renderNotes();
+    renderMemos();
+  </script>
 </body>
 </html>
